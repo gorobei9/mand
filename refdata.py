@@ -3,22 +3,15 @@ from obj import Entity, Event
 from type_registry import _tr
 from graph import node
 
-class RefData(Entity):
-
-    @node
-    def clock(self):
-        return _tr.Clock.get('RefData', db=self.meta.db)
-    
-    def state(self):
-        evs = self.activeEvents()
-        if evs:
-            return evs[-1]
-
 class RefDataUpdateEvent(Event):
     
     @node(stored=True)
     def entity(self):
         return None
+
+    @node(stored=True)
+    def data(self):
+        return {}
     
     def str(self):
         return '%s: %-15s: %-15s: %-30s' % (self.meta._timestamp.validTime,
@@ -34,6 +27,26 @@ class RefDataUpdateEvent(Event):
         ret.update(super(RefDataUpdateEvent, self)._containers())
         ret.add(self.entity())
         return ret
+
+class RefData(Entity):
+
+    evCls = RefDataUpdateEvent
+    
+    @node
+    def clock(self):
+        return _tr.Clock.get('RefData', db=self.meta.db)
+
+    def update(self, validTime=None, amends=[], **kwargs):
+        ev = self.evCls(entity=self, amends=amends, data=kwargs)
+        ev.write(validTime=validTime)
+        return ev
+
+    def state(self):
+        ret = {}
+        for e in self.activeEvents():
+            ret.update(e.data())
+        return ret
+
 
 _tr.add(RefData)
 _tr.add(RefDataUpdateEvent)

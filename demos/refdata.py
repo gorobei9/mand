@@ -6,43 +6,21 @@ from ..context import Context
 from ..db import ObjectDb, UnionDb
 from ..dbdriver import DynamoDbDriver
 
-class CustomerRefData(_tr.RefData):
-    
-    def fullName(self):
-        return self.state().fullName()
-       
-    def address(self):
-        return self.state().address()
-    
-    def company(self):
-        return self.state().company()
-    
-    def comment(self):
-        return self.state().comment()
-    
-    def update(self, validTime=None, **kwargs):
-        ev = CustomerRefDataUpdateEvent(entity=self, **kwargs)
-        ev.write(validTime=validTime)
-        return ev
     
 class CustomerRefDataUpdateEvent(_tr.RefDataUpdateEvent):
     
-    @node(stored=True)
     def fullName(self):
-        return None
-    
-    @node(stored=True)
+        return self.data().get('fullName')
+       
     def address(self):
-        return None
+        return self.data().get('address')
     
-    @node(stored=True)
     def company(self):
-        return None
+        return self.data().get('company')
     
-    @node(stored=True)
     def comment(self):
-        return None
-    
+        return self.data().get('company')
+
     @node
     def _validTime(self):
         return self.meta._timestamp._str()
@@ -63,6 +41,22 @@ class CustomerRefDataUpdateEvent(_tr.RefDataUpdateEvent):
                                                 ) 
 
     
+class CustomerRefData(_tr.RefData):
+
+    evCls = CustomerRefDataUpdateEvent
+        
+    def fullName(self):
+        return self.state().get('fullName')
+       
+    def address(self):
+        return self.state().get('address')
+    
+    def company(self):
+        return self.state().get('company')
+    
+    def comment(self):
+        return self.state().get('company')
+    
 _tr.add(CustomerRefData)
 _tr.add(CustomerRefDataUpdateEvent)
 
@@ -80,25 +74,17 @@ def main(rawdb, _odb):
 
         ts1 = Timestamp()
 
-        e2 = cr.update(fullName='Eliza Smith',
-                       address='10 Main St',
-                       company='Frobozz Magic Friut Company')
+        e2 = cr.update(company='Frobozz Magic Friut Company')
 
         ts2 = Timestamp()
 
-        cr.update(fullName='Eliza Smith',
-                  address='10 Main St',
-                  company='Frobozz Magic Fruit Company',
+        cr.update(company='Frobozz Magic Fruit Company',
                   comment='Grr. Typo.',
                   amends = e2)
 
         ts3 = Timestamp()
 
-        e4 = cr.update(fullName='Eliza James',
-                       address='10 Main St',
-                       company='Frobozz Magic Fruit Company')
-
-
+        e4 = cr.update(fullName='Eliza James')
 
     cr.printActivity()
 
@@ -193,16 +179,12 @@ def main(rawdb, _odb):
         with Context({clock.cutoffs: endOfDay}):
             info(cr, verbose=False)
 
-        e2 = cr.update(fullName='Joe James',
-                       address='1 First Ave',
-                       company='Frobozz Magic Lamp Company',
+        e2 = cr.update(address='1 First Ave',
                        validTime=endOfDay.validTime,
                        comment = 'Oops, we got this address change yesterday'
                        )
 
-        e3 = cr.update(fullName='Joe James',
-                       address='235 W 76',
-                       company='Frobozz Magic Illumination Company',
+        e3 = cr.update(company='Frobozz Magic Illumination Company'
                        )
 
         ts3 = Timestamp()
