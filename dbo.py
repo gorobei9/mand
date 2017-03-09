@@ -12,6 +12,7 @@ class DBOMetaClass(type):
         for attrname, attrvalue in attrs.iteritems():
             if getattr(attrvalue, 'nodeInfo', 0):
                 ni = attrvalue.nodeInfo
+                ni['key'] = '%s:%s' % (name, ni['name'])
                 nodes[ni['name']] = ni
                 
         nodes = nodes.values()

@@ -61,8 +61,9 @@ _tr.add(CustomerRefData)
 _tr.add(CustomerRefDataUpdateEvent)
 
 
-def main(rawdb, _odb):
-    
+def main(_odb):
+    rawdb = _odb.dbDriver
+       
     with _odb:
         clock = _tr.Clock('RefData').write()
 

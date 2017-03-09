@@ -11,8 +11,10 @@ class TypeRegistry(object):
     def cls(self, name):
         return self.nameToCls[name]
     def name(self, cls):
-        return self.clsToName[cls]
-
+        if cls in self.clsToName:
+            return self.clsToName[cls]
+        else:
+            return 'anon:%s' % cls.__name__
     def __getattr__(self, name):
         return self.cls(name)
     

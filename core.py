@@ -16,19 +16,5 @@ from graph import node
 from root_clock import RootClock
 from clock import Clock, ClockEvent
 from dictutils import merge, flatten
-
 import refdata
-
-rawdb = DynamoDbDriver(ddb)
-_odb = ObjectDb(rawdb)
-RootClock('Main', db=_odb).write()
-
-import demos.refdata
-
-demos.refdata.main(rawdb, _odb)
-
 import workflow
-
-import demos.workflow
-
-demos.workflow.main(_odb)

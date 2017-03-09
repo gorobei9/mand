@@ -112,6 +112,14 @@ class WorkItem(Entity):
     pass
 
 
+# Event types:
+#  Open
+#  Close?
+#  Aggregate  - ticket* -> new ticket
+#  Split      - ticket -> ticket*
+#  Transfer/Novation
+#  MutateItem
+
 class _WorkItemEvent(Event):
     
     @node(stored=True)

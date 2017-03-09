@@ -21,6 +21,7 @@ class DBOMeta(object):
         self._timestamp   = None
         self._data        = kwargs
         self.isNew        = True
+        
     def _fromStoredForm(self, path, _payload, _encoding, _timestamp):
         prefix = self._prefix()
         assert path.startswith(prefix)
@@ -34,14 +35,18 @@ class DBOMeta(object):
         self._encoding  = op
         self._timestamp = _timestamp
         self.isNew      = False
+        
     def _prefix(self):
         return '/Global/%s/' % self.typeId
+    
     def name(self):
         if self._name is None:
             self._name = getUUID()
         return self._name
+    
     def path(self):
         return '%s%s' % (self._prefix(), self.name())
+    
     def _toStoredForm(self):
         if self._encoding is None:
             enc = {}
