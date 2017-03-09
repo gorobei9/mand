@@ -47,7 +47,7 @@ addEncoding('O',
            )
                    
 addEncoding('OL',
-            lambda v: isinstance(v, list) and v and isinstance(v[0], _DBO),
+            lambda v: isinstance(v, list) and v and hasattr(v[0], '_isDBO'),
             lambda v: [ _persist(o).meta.path() for o in v ],
             lambda v, meta: [ meta.db.get(p) for p in v ]
            )         

@@ -37,7 +37,7 @@ class RefData(Entity):
         return _tr.Clock.get('RefData', db=self.meta.db)
 
     def update(self, validTime=None, amends=[], **kwargs):
-        ev = self.evCls(entity=self, amends=amends, data=kwargs)
+        ev = self.evCls(entity=self, amends=amends, data=kwargs, db=self.meta.db)
         ev.write(validTime=validTime)
         return ev
 

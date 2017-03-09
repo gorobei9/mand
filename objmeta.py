@@ -77,6 +77,8 @@ class DBOMeta(object):
     def _write(self, timestamp):
         if not Context.inRootContext():
             raise RuntimeError('non root-context write semantics not yet figured out.')
+        if self.typeId.startswith('anon:'):
+            raise RuntimeError('trying to persist unregistered class of type %s' % self.typeId)
         path = self.path()
         self._toStoredForm() 
         if printWrites:
