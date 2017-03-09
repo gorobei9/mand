@@ -5,7 +5,7 @@ from timestamp import Timestamp
 from db import ObjectDb, UnionDb
 from encdec import EncDec
 from noval import _noVal
-from monitor import Monitor
+from monitor import Monitor, PrintMonitor
 from context import Context
 from uuid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta

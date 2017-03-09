@@ -34,7 +34,10 @@ class PrintMonitor(Monitor):
         if action in ('end', 'exit'):
             return
         
-        if sys=='GetValue':
+        if sys=='DB':
+            obj = kw['obj']
+            print '  '* depth, sys, action, obj.path()
+        elif sys=='GetValue':
             key = kw['key']
             print '  '* depth, sys, action, self.keyStr(key)
         elif sys=='GetValue/Calc':

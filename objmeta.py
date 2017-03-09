@@ -6,8 +6,7 @@ from context import Context
 from noval import _noVal
 from timestamp import Timestamp
 from uuid import getUUID
-
-printWrites = False
+from monitor import Monitor
 
 class DBOMeta(object):
     def __init__(self, obj, name=None, db=None, kwargs=None):
@@ -81,8 +80,7 @@ class DBOMeta(object):
             raise RuntimeError('trying to persist unregistered class of type %s' % self.typeId)
         path = self.path()
         self._toStoredForm() 
-        if printWrites:
-            print 'Writing (meta)', path, self.db.name
+        Monitor.msg('DB', 0, 'write', obj=self)
         op = []
         for k, v in self._encoding.items():
             op.append(k)
