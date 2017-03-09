@@ -1,17 +1,24 @@
 
 from noval import _noVal
+from monitor import Monitor
 
 class Context(object):
     _contexts = []
     
-    def __init__(self, tweaks):
+    def __init__(self, tweaks, name=None):
         p = self.parent()
         self.tweaks = p.tweaks.copy() if p else {}
         self.tweaks.update(tweaks)
         self.cache = self.tweaks.copy()
+        self.name = name if name else '%s' % id(name)
+        if p:
+            self.name = '%s:%s' % (p.name, self.name)
+        
     def __enter__(self, *a):
+        Monitor.msg('Context', 1, 'enter', ctx=self)
         self._contexts.append(self)
     def __exit__(self, *a):
+        Monitor.msg('Context', -1, 'exit', ctx=self)
         c = self._contexts.pop()
         assert c == self
     def get(self, cmb):
