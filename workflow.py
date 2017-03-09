@@ -4,6 +4,7 @@ from obj import Entity, Event
 from graph import node
 from clock import Clock
 from dictutils import merge, flatten
+from printutils import strForm
 
 class Workbook(Entity):
     
@@ -238,9 +239,7 @@ class WorkItemMessageEvent(Event):
     
     def str(self, source=None):
         m = self.message()
-        if len(m) > 60:
-            m = m[:57] + '...'
-        return 'Message: %s' % (m,)
+        return 'Message: %s' % strForm(m, 60)
 
     def _uiFields(self, key=None):
         return ['action', 'message']

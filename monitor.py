@@ -1,4 +1,6 @@
 
+from printutils import strForm
+
 class Monitor(object):
     monitors = []
 
@@ -31,13 +33,26 @@ class PrintMonitor(Monitor):
         depth = self.depth
         self.depth += depthInc
 
+        if sys=='GetValue':
+            key = kw['key']
+            if 'value' in kw:
+                vStr = str(kw['value'])[:30]
+                print '  '* depth, sys, action, self.keyStr(key), 'value:', strForm(vStr, 20)
+                return
+                
+            print '  '* depth, sys, action, self.keyStr(key)
+            return
+        
         if action in ('end', 'exit'):
             return
         
         if sys=='DB':
             obj = kw['obj']
             print '  '* depth, sys, action, obj.path()
-        elif sys=='GetValue':
+        elif sys=='Object/write':
+            obj = kw['obj']
+            print '  '* depth, sys, action, obj.meta.path()
+        elif sys=='SetStored':
             key = kw['key']
             print '  '* depth, sys, action, self.keyStr(key)
         elif sys=='GetValue/Calc':

@@ -1,6 +1,7 @@
 
 from type_registry import _tr
 from objmeta import DBOMeta
+from monitor import Monitor
 
 class DBOMetaClass(type):
     def __new__(cls, name, parents, attrs):
@@ -42,12 +43,14 @@ class _DBO(object):
             raise RuntimeError('Setting non-stored fields: %s' % ', '.join(bad))
         
     def write(self, **kwargs):
+        Monitor.msg('Object/write', 1, 'write', obj=self)
         if self.meta.isNew:
             for n in self._storedFields():
                 getattr(self, n)()
         self.meta.write(**kwargs)
         db = self.meta.db
         db.cache[self.meta.path()] = self
+        Monitor.msg('Object/write', -1, 'end', obj=self)
         return self
 
     def _uiFields(self, key=None):
