@@ -31,6 +31,7 @@ class PrintMonitor(Monitor):
         
     def message(self, sys, depthInc, action, **kw):
         depth = self.depth
+        ind = '  '*depth
         self.depth += depthInc
 
         strs = []
@@ -44,19 +45,14 @@ class PrintMonitor(Monitor):
         addStr('obj',     lambda v: v.meta.path())
         addStr('key',     lambda v: self.keyStr(v))
         addStr('mkey',    lambda v: v.nodeInfo['key'])
-        
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)
         
-        ind = '  '*depth
-        
         if sys in ('GetValue', 'GetValue/Calc'):
             print ind, sys, action, info
             return
-        
         if action in ('end', 'exit'):
             return
-        
         print ind, sys, action, info
             

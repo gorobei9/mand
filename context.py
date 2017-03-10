@@ -9,9 +9,9 @@ class RootContext(object):
         self.cache = {}
         self.name = 'Root'
     def get(self, key):
-        return _noVal
+        return self.cache.get(key, _noVal)
     def set(self, key, v):
-        Monitor.msg('Context', -1, 'set', ctx=self, key=key, value=v)
+        Monitor.msg('Context', 0, 'set', ctx=self, key=key, value=v)
         self.cache[key] = v
 
 class Context(object):
@@ -37,7 +37,7 @@ class Context(object):
     def get(self, key):
         return self.cache.get(key, _noVal)
     def set(self, key, v):
-        Monitor.msg('Context', -1, 'set', ctx=self, key=key, value=v)
+        Monitor.msg('Context', 0, 'set', ctx=self, key=key, value=v)
         self.cache[key] = v
   
     @classmethod
