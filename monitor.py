@@ -33,34 +33,30 @@ class PrintMonitor(Monitor):
         depth = self.depth
         self.depth += depthInc
 
-        if sys=='GetValue':
-            key = kw['key']
-            if 'value' in kw:
-                vStr = str(kw['value'])[:30]
-                print '  '* depth, sys, action, self.keyStr(key), 'value:', strForm(vStr, 20)
-                return
-                
-            print '  '* depth, sys, action, self.keyStr(key)
+        strs = []
+        def addStr(k, f):
+            if k in kw:
+                v = kw.pop(k)
+                strs.append('%s: %s' % (k, f(v)))
+        addStr('value',   lambda v: strForm(v, 20))
+        addStr('ctx',     lambda v: self.ctxStr(v))
+        addStr('metaObj', lambda v: v.path())
+        addStr('obj',     lambda v: v.meta.path())
+        addStr('key',     lambda v: self.keyStr(v))
+        addStr('mkey',    lambda v: v.nodeInfo['key'])
+        
+        if kw:
+            strs.append('other: %s' % kw.keys())
+        info = ', '.join(strs)
+        
+        ind = '  '*depth
+        
+        if sys in ('GetValue', 'GetValue/Calc'):
+            print ind, sys, action, info
             return
         
         if action in ('end', 'exit'):
             return
         
-        if sys=='DB':
-            obj = kw['obj']
-            print '  '* depth, sys, action, obj.path()
-        elif sys=='Object/write':
-            obj = kw['obj']
-            print '  '* depth, sys, action, obj.meta.path()
-        elif sys=='SetStored':
-            key = kw['key']
-            print '  '* depth, sys, action, self.keyStr(key)
-        elif sys=='GetValue/Calc':
-            key = kw['mkey'].nodeInfo['key']
-            print '  '* depth, sys, action, key
-        elif sys=='Context':
-            ctx = kw['ctx']
-            print '  '* depth, sys, action, self.ctxStr(ctx)
-        else:  
-            print '  '* depth, sys, action, kw.keys()
+        print ind, sys, action, info
             

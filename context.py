@@ -8,10 +8,11 @@ class RootContext(object):
         self.tweaks = {}
         self.cache = {}
         self.name = 'Root'
-    def get(self, cmb):
+    def get(self, key):
         return _noVal
-    def set(self, cmb, v):
-        self.cache[cmb] = v
+    def set(self, key, v):
+        Monitor.msg('Context', -1, 'set', ctx=self, key=key, value=v)
+        self.cache[key] = v
 
 class Context(object):
     _contexts = [RootContext()]
@@ -33,10 +34,11 @@ class Context(object):
         Monitor.msg('Context', -1, 'exit', ctx=self)
         c = self._contexts.pop()
         assert c == self
-    def get(self, cmb):
-        return self.cache.get(cmb, _noVal)
-    def set(self, cmb, v):
-        self.cache[cmb] = v
+    def get(self, key):
+        return self.cache.get(key, _noVal)
+    def set(self, key, v):
+        Monitor.msg('Context', -1, 'set', ctx=self, key=key, value=v)
+        self.cache[key] = v
   
     @classmethod
     def current(cls):
