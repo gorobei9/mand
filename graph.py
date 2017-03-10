@@ -3,29 +3,39 @@ from context import Context
 from noval import _noVal
 from monitor import Monitor
 
-stack = [] # nodes being computed in standard Python
+class DependencyManager(object):
+    def __init__(self):
+        self.stack = []
+    def addDep(self, src, ctx):
+        if self.stack:
+            dst = self.stack[-1]
+            def p(t):
+                return '%s@%x/%s' % (t[0].__class__.__name__, id(t[0]), t[1])
+            #print 'adding dep on', p(src), 'for', p(dst)
+        self.stack.append(src)
+    def pop(self):
+        self.stack.pop()
+            
+_dm = DependencyManager()
 
+def setDependencyManager(dm):
+    global _dm
+    _dm = dm
 
-def addDep(dst, src):
-    def p(t):
-        return '%s@%x/%s' % (t[0].__class__.__name__, id(t[0]), t[1])
-    print 'adding dep on', p(src)
-    print '          for', p(dst)
     
 def getValue(f, fName, a, k):
     # XXX - this doesn't handle methods with args correctly
     obj = a[0]
     # print 'GET:', f
     name = f.func_name
-    key = getattr(obj, name)
-    mkey = (obj, fName)
 
-    #if stack:
-    #    addDep(stack[-1], mkey)        
-    stack.append(mkey)
+    # this should be sorted out a bit...
+    key = (obj, fName)        # the full name of the function we call, possibly a super() method
+
+    ctx = Context.current()
+    _dm.addDep(key, ctx)
 
     try:
-        ctx = Context.current()
         Monitor.msg('GetValue', 1, 'begin', key=key, ctx=ctx)
         v = ctx.get(key)
         if v is not _noVal:
@@ -35,9 +45,9 @@ def getValue(f, fName, a, k):
         if v is not _noVal:
             Monitor.msg('GetValue', -1, 'from stored', key=key, ctx=ctx, value=v)
             return v
-        Monitor.msg('GetValue/Calc', 1, 'begin', mkey=key, ctx=ctx)
+        Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctx)
         v = f(*a, **k)
-        Monitor.msg('GetValue/Calc', -1, 'end', mkey=key, ctx=ctx)
+        Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctx)
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
             obj.meta.setField(name, v)
@@ -47,7 +57,7 @@ def getValue(f, fName, a, k):
         return v
 
     finally:
-        stack.pop()
+        _dm.pop()
 
 def node(*a, **k):
     # XXX - this doesn't handle methods with args correctly

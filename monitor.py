@@ -11,7 +11,7 @@ class Monitor(object):
         self.monitors.pop()
 
     def keyStr(self, key):
-        return '<%s>.%s()' % (key.im_self.meta.path(), key.nodeInfo['name'])
+        return '%s@%x/%s' % (key[0].__class__.__name__, id(key[0]), key[1])
 
     def ctxStr(self, ctx):
         return ctx.name
@@ -41,10 +41,9 @@ class PrintMonitor(Monitor):
                 strs.append('%s: %s' % (k, f(v)))
         addStr('value',   lambda v: strForm(v, 20))
         addStr('ctx',     lambda v: self.ctxStr(v))
-        addStr('metaObj', lambda v: v.path())
+        addStr('metaobj', lambda v: v.path())
         addStr('obj',     lambda v: v.meta.path())
-        addStr('key',     lambda v: self.keyStr(v))
-        addStr('mkey',    lambda v: v.nodeInfo['key'])
+        addStr('key',    lambda v: self.keyStr(v))
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)

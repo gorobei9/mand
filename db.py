@@ -45,6 +45,10 @@ class ObjectDb(_ObjectDbBase):
         self.dbDriver = dbDriver
         super(ObjectDb, self).__init__()
         self.name = 'O' + self.dbDriver.name
+
+        _tr.RootClock('Main', db=self).write()
+        _tr.CosmicAll('TheCosmicAll', db=self).write()
+
         
     def _reify(self, d, path, db):
         if 'Item' not in d:

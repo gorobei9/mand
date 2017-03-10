@@ -19,13 +19,19 @@ class Context(object):
     
     def __init__(self, tweaks, name=None):
         p = self.current()
+        self.tweaks = p.tweaks.copy() if p else {}
+        self.tweaks.update(tweaks)
+        
+        cache = {}
+        for k, v in self.tweaks.items():
+            key = (k.im_self, k.nodeInfo['key'])
+            cache[key] = v
+            
         self.name = name if name else '%s' % id(name)
         if p:
             self.name = '%s:%s' % (p.name, self.name)
         Monitor.msg('Context', 0, 'create', ctx=self)
-        self.tweaks = p.tweaks.copy() if p else {}
-        self.tweaks.update(tweaks)
-        self.cache = self.tweaks.copy()
+        self.cache = cache
         
     def __enter__(self, *a):
         Monitor.msg('Context', 1, 'enter', ctx=self)

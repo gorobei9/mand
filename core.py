@@ -13,6 +13,7 @@ from objmeta import DBOMeta, EntityMeta, EventMeta
 from obj import Entity, Event
 from utils import displayTable
 from graph import node
+from cosmic_all import CosmicAll
 from root_clock import RootClock
 from clock import Clock, ClockEvent
 from dictutils import merge, flatten
