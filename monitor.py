@@ -9,6 +9,7 @@ class Monitor(object):
 
     def __exit__(self, *a):
         self.monitors.pop()
+        self.onExit()
 
     def keyStr(self, key):
         return '%s@%x/%s' % (key[0].__class__.__name__, id(key[0]), key[1])
@@ -18,7 +19,10 @@ class Monitor(object):
     
     def message(self, *a, **k):
         print 'Monitor(baseclass).msg:', a, k
-        
+
+    def onExit(self):
+        pass
+    
     @classmethod
     def msg(cls, *a, **k):
         for monitor in cls.monitors:
@@ -43,7 +47,7 @@ class PrintMonitor(Monitor):
         addStr('ctx',     lambda v: self.ctxStr(v))
         addStr('metaobj', lambda v: v.path())
         addStr('obj',     lambda v: v.meta.path())
-        addStr('key',    lambda v: self.keyStr(v))
+        addStr('key',     lambda v: self.keyStr(v))
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)
@@ -55,3 +59,19 @@ class PrintMonitor(Monitor):
             return
         print ind, sys, action, info
             
+class SummaryMonitor(Monitor):
+
+    def __init__(self):
+        self.counts = {}
+        
+    def message(self, sys, depthInc, action, **kw):
+        if action in ('begin', 'create'):
+            self.counts[sys] = self.counts.get(sys, 0) + 1
+
+    def onExit(self):
+        print 'Compute activity:'
+        for i in sorted(self.counts.items()):
+            print '  %20s: %5d' % i
+        
+
+    

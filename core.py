@@ -6,7 +6,7 @@ from timestamp import Timestamp
 from db import ObjectDb, UnionDb
 from encdec import EncDec
 from noval import _noVal
-from monitor import Monitor, PrintMonitor
+from monitor import Monitor, PrintMonitor, SummaryMonitor
 from node import Node
 from context import Context
 from uuid import getUUID
