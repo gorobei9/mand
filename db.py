@@ -47,8 +47,7 @@ class ObjectDb(_ObjectDbBase):
         self.name = 'O' + self.dbDriver.name
 
         _tr.RootClock('Main', db=self).write()
-        _tr.CosmicAll('TheCosmicAll', db=self).write()
-
+        self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
         
     def _reify(self, d, path, db):
         if 'Item' not in d:
@@ -82,7 +81,9 @@ class ObjectDb(_ObjectDbBase):
         
     def _describe(self):
         return '%s: %s' % (self, self.dbDriver._describe())
-  
+
+    def _wroteEvent(self):
+        self.cosmicAll._wroteEvent()
 
 class UnionDb(_ObjectDbBase):
     def __init__(self, frontDb, backDb):

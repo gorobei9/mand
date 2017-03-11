@@ -82,7 +82,9 @@ class Event(_DBO):
         return ret
     
     def write(self, validTime=None):
-        return super(Event, self).write(validTime=validTime, _containers=self._containers())
+        ret = super(Event, self).write(validTime=validTime, _containers=self._containers())
+        self.meta.db._wroteEvent()
+        return ret
         
     def _amends(self):
         a = self.amends()

@@ -20,6 +20,9 @@ class Node(object):
             i.printInputGraph(depth+1)
 
     def _invalidate(self):
-        self.value = _noVal
-        self.inputs = set()
-        self.outputs = set()
+        if self.value is not _noVal:
+            self.value = _noVal
+            for o in self.outputs:
+                o._invalidate()
+            self.inputs = set()
+            self.outputs = set()
