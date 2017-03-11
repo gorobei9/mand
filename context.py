@@ -65,6 +65,10 @@ class Context(ContextBase):
         return cls._contexts[-1]
     
     @classmethod
+    def _root(cls):
+        return cls._contexts[0]
+
+    @classmethod
     def inRootContext(cls):
         return cls.current() == cls._contexts[0]
     

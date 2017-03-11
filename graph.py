@@ -14,8 +14,10 @@ class DependencyManager(object):
             input = self.stack[-1]
             output.inputs.add(input)
             input.outputs.add(output)
+            
     def push(self, node):
         self.stack.append(node)
+        
     def pop(self):
         self.stack.pop()
             
@@ -31,10 +33,12 @@ def getValue(f, fName, a, k):
     obj = a[0]
     name = f.func_name
 
-    # this should be sorted out a bit...
     key = (obj, fName)        # the full name of the function we call, possibly a super() method
 
-    ctx = Context.current()
+    if obj._isCosmic:
+        ctx = Context._root()
+    else:
+        ctx = Context.current()
     node = ctx.getNode(key)
 
     _dm.push(node)

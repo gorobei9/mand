@@ -28,6 +28,7 @@ class _DBO(object):
     __metaclass__ = DBOMetaClass
     _instanceMetaclass = DBOMeta
     _isDBO = True
+    _isCosmic = False
     
     def __init__(self, name=None, db=None, **kwargs):
         self._checkStoredFields(kwargs)
