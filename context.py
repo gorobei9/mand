@@ -7,15 +7,17 @@ class ContextBase(object):
 
     def getCBM(self, k):
         key = (k.im_self, k.nodeInfo['key'])
-        return self.getNode(key)
-
+        node = self.getNode(key)
+        return node
+    
     def getNode(self, key):
         v = self.get(key)
         if v:
             return v
         else:
             node = Node(self, key, value=_noVal)
-            return self.set(key, node)
+            self.cache[key] = node
+            return node
             
     def get(self, key):
         return self.cache.get(key)

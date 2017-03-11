@@ -15,7 +15,10 @@ class Node(object):
         return '<%s@%x/%s in %s>' % (key[0].__class__.__name__, id(key[0]), key[1], ctx.name)
 
     def printInputGraph(self, depth=0):
-        print '  '*depth, self
+        if self.value is _noVal:
+            print '  '*depth, self, '*not evaluated*'
+        else:
+            print '  '*depth, self
         for i in self.inputs:
             i.printInputGraph(depth+1)
 
