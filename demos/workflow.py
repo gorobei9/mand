@@ -48,8 +48,10 @@ def main(_odb):
 
         ticket.addMessage('Actually, only the right mouse button is bad, so just replace that. Thx!')
 
-        ev4 = ev2.ticket().transfer(book1=hd, book2=fd, action='escalate')
-
+        ticket2 = ev2.ticket()
+        
+        ev4 = ticket2.transfer(book1=hd, book2=fd, action='escalate')
+        
         ev2.ticket().addMessage('Um, the smoke is making it hard to see my desk.')
 
         t4 = Timestamp()

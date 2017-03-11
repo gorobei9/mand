@@ -30,6 +30,9 @@ class _ObjectDbBase(object):
         objs = [ self.get(name) for name in names ]
         return objs
     
+    def _wroteEvent(self):
+        self.cosmicAll._wroteEvent()
+
     def describe(self):
         print self._describe()
 
@@ -82,15 +85,13 @@ class ObjectDb(_ObjectDbBase):
     def _describe(self):
         return '%s: %s' % (self, self.dbDriver._describe())
 
-    def _wroteEvent(self):
-        self.cosmicAll._wroteEvent()
-
 class UnionDb(_ObjectDbBase):
     def __init__(self, frontDb, backDb):
         self.frontDb = frontDb
         self.backDb = backDb
         super(UnionDb, self).__init__()
         self.name = '(%s:%s)' %  (self.frontDb.name, self.backDb.name)
+        self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
         
     def _get(self, name, db=None):
         # XXX - Really not adequate, would like caches on the child dbs,

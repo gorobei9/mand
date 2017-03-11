@@ -97,7 +97,7 @@ class WorkTicket(Entity):
         
     def transfer(self, book1, book2, action='transfer'):
         item = self._item()
-        quantity = self._itemsByBook()[book1][item]
+        quantity = -self._itemsByBook()[book1][item] # remove all of item from first book
         ev = WorkItemTransferEvent(ticket=self, 
                                    item=item,
                                    quantity=quantity,
@@ -140,7 +140,7 @@ class _WorkItemEvent(Event):
     @node(stored=True)
     def book2(self):
         return None
-    
+
     def _items(self):
         return [ [ self.ticket(), self.item(), 1, self.book1(), self.book2() ] ]
     
