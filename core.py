@@ -12,7 +12,7 @@ from context import Context
 from uuid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta
 from obj import Entity, Event
-from utils import displayTable
+from utils import displayTable, displayDict, displayListOfDicts
 from graph import node
 from cosmic_all import CosmicAll
 from root_clock import RootClock
