@@ -69,6 +69,15 @@ def getValue(f, fName, a, k):
     finally:
         _dm.pop()
 
+def makeFn(f, name, info={}):
+    info = info.copy()
+    info['name'] =  name
+    def fn(*a, **k):
+        v = getValue(f, info['key'], a, k)
+        return v
+    fn.nodeInfo = info
+    return fn
+    
 def node(*a, **k):
     # XXX - this doesn't handle methods with args correctly
     if k:
@@ -77,18 +86,8 @@ def node(*a, **k):
                 assert kw in ('stored',)
             f = aa[0]
             info = k.copy()
-            info['name'] = f.func_name
-            def fn(*aaa, **kkk):
-                v = getValue(f, info['key'], aaa, kkk)
-                return v
-            fn.nodeInfo = info
-            return fn
+            return makeFn(f, f.func_name, info=info)
         return g
     
     f = a[0]
-    info = {'name': f.func_name}
-    def fn(*aa, **kk):
-        v = getValue(f, info['key'], aa, kk)
-        return v
-    fn.nodeInfo = info
-    return fn
+    return makeFn(f, f.func_name)
