@@ -1,7 +1,5 @@
 
-from obj import Entity, Event
-from type_registry import _tr
-from graph import node
+from mand.core import Entity, Event, _tr, node
 
 class RefDataUpdateEvent(Event):
     

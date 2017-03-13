@@ -6,6 +6,8 @@ from ..context import Context
 from ..db import ObjectDb, UnionDb
 from ..dbdriver import DynamoDbDriver
 
+import mand.lib.refdata
+
     
 class CustomerRefDataUpdateEvent(_tr.RefDataUpdateEvent):
     

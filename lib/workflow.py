@@ -1,10 +1,5 @@
 
-from type_registry import _tr
-from obj import Entity, Event
-from graph import node
-from clock import Clock
-from dictutils import merge, flatten
-from printutils import strForm
+from mand.core import _tr, Entity, Event, node, Clock, merge, flatten, strForm
 
 class Workbook(Entity):
     

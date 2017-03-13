@@ -4,6 +4,8 @@ from ..timestamp import Timestamp
 from ..context import Context
 from ..utils import displayTable
 
+import mand.lib.workflow
+
 Clock = _tr.Clock
 RootClock = _tr.RootClock
 Workbook = _tr.Workbook
