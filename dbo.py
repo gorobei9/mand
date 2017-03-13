@@ -56,7 +56,16 @@ class _DBO(object):
 
     def _uiFields(self, key=None):
         return [ n['name'] for n in self._nodes ]
-        
+
+    def getObjs(self, cls, names, create=True):
+        return [ self.getObj(cls, name, create=create) for name in names ]
+    
+    def getObj(self, cls, name, create=True):
+        ret = cls.get(name, db=self.meta.db)
+        if ret is None and create:
+            ret = cls(name, db=self.meta.db)
+        return ret
+    
     @classmethod
     def get(cls, name, db):
         typeId = _tr.name(cls)
