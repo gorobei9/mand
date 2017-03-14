@@ -15,8 +15,10 @@ class DynamoDbDriver(object):
     ddb_prod = None
     
     def __init__(self, foo=None, name=None, inMem=True, ro=None):
-        if foo:
-            1/0
+        # I actually learned this idiom from Google's Tensorflow code. Thanks, guys!
+        # If you switch from a boa constructor to a keyword constructor, stick a
+        # dummy named parameter at the front: calls using the old signature can be failed early.
+        assert foo is None
 
         if ro is None:
             ro = not inMem
@@ -33,11 +35,19 @@ class DynamoDbDriver(object):
         
         if not self.createTables(name):
             ddb = self.ddb()
-            entityTableName = 'entities_%s' % name
-            mapTableName    = 'map_%s' % name
-            self._entities = ddb.Table(entityTableName) 
-            self._map = ddb.Table(mapTableName)
+            self._entities = ddb.Table(self.entityTableName()) 
+            self._map      = ddb.Table(self.mapTableName())
 
+    def entityTableName(self, name=None):
+        if name is None:
+            name = self.name
+        return 'entities_%s' % name
+        
+    def mapTableName(self, name=None):
+        if name is None:
+            name = self.name
+        return 'map_%s' % name
+    
     def ddb(self):
         if self.inMem:
             if self.ddb_mem is None:
@@ -58,7 +68,7 @@ class DynamoDbDriver(object):
         name = 0
         while True:        
             name += 1
-            entityTableName = 'entities_%s' % name
+            entityTableName = self.entityTableName(name)
             if entityTableName not in names:
                 return str(name)
    
@@ -66,8 +76,8 @@ class DynamoDbDriver(object):
         if self.ro:
             return False
         
-        entityTableName = 'entities_%s' % name
-        mapTableName    = 'map_%s' % name
+        entityTableName = self.entityTableName(name)
+        mapTableName    = self.mapTableName(name)
 
         ddb = self.ddb()
 

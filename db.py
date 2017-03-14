@@ -48,8 +48,7 @@ class ObjectDb(_ObjectDbBase):
         # I actually learned this idiom from Google's Tensorflow code. Thanks, guys!
         # If you switch from a boa constructor to a keyword constructor, stick a
         # dummy named parameter at the front: calls using the old signature can be failed early.
-        if foo:
-            assert False
+        assert foo is None
             
         if dbDriver is None:
             from dbdriver import DynamoDbDriver
