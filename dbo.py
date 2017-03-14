@@ -61,17 +61,19 @@ class _DBO(object):
         return [ self.getObj(cls, name, create=create) for name in names ]
     
     def getObj(self, cls, name, create=True):
-        ret = cls.get(name, db=self.meta.db)
-        if ret is None and create:
-            ret = cls(name, db=self.meta.db)
+        ret = cls.get(name, db=self.meta.db, create=create)
         return ret
     
     @classmethod
-    def get(cls, name, db):
+    def get(cls, name, db, create=False):
         typeId = _tr.name(cls)
         prefix = '/Global/%s/' % typeId
         path = '%s%s' % (prefix, name)
-        return db.get(path)
+        ret = db.get(path)
+        if ret is None and create:
+            ret = cls(name, db=db)
+            ret.write()
+        return ret
     
     @classmethod
     def _storedFields(cls):

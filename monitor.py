@@ -30,14 +30,18 @@ class Monitor(object):
 
 class PrintMonitor(Monitor):
     
-    def __init__(self):
+    def __init__(self, include=None):
         self.depth = 0
+        self.include = include
         
     def message(self, sys, depthInc, action, **kw):
         depth = self.depth
         ind = '  '*depth
         self.depth += depthInc
 
+        if self.include is not None and sys not in self.include:
+            return
+        
         strs = []
         def addStr(k, f):
             if k in kw:
@@ -51,7 +55,7 @@ class PrintMonitor(Monitor):
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)
-        
+
         if sys in ('GetValue', 'GetValue/Calc'):
             print ind, sys, action, info
             return
