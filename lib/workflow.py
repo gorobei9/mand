@@ -21,6 +21,14 @@ class Workbook(Entity):
     def refData(self):
         return _tr.CustomerRefData.get(self.meta.name(), db=self.meta.db)
 
+    # the following are mostly for use by the Portfolio class...
+    
+    def books(self):
+        return [self]
+
+    def prn(self, depth=0):
+        print '  '*depth, self.meta.name()
+
 class WorkTicket(Entity):
     
     @node

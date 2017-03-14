@@ -4,35 +4,78 @@ from boto3.dynamodb.conditions import Key
 
 # Assumes external process:
 #   java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb --inMemory
+#   java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb --port 8001
 
 ddb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
 #dc = boto3.client('dynamodb', endpoint_url='http://localhost:8000')
 
-try:
-    _dbn
-except:
-    _dbn = 0
-_dbn += 1
-
 class DynamoDbDriver(object):
-    def __init__(self, ddb):
-        self._ddb = ddb
+
+    ddb_mem = None
+    ddb_prod = None
+    
+    def __init__(self, foo=None, name=None, inMem=True, ro=None):
+        if foo:
+            1/0
+
+        if ro is None:
+            ro = not inMem
+            
+        self.ro     = ro
+        self.inMem  = inMem
+        self.anon   = name is None
         
-        global _dbn
+        if name is None:
+            assert inMem
+            name = self.anon_name()
+
+        self.name = name
         
-        self.name = 'DDB-MEM-%s' % _dbn
+        if not self.createTables(name):
+            ddb = self.ddb()
+            entityTableName = 'entities_%s' % name
+            mapTableName    = 'map_%s' % name
+            self._entities = ddb.Table(entityTableName) 
+            self._map = ddb.Table(mapTableName)
+
+    def ddb(self):
+        if self.inMem:
+            if self.ddb_mem is None:
+                self.ddb_mem = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
+            return self.ddb_mem
+        else:
+            if self.ddb_prod is None:
+                self.ddb_prod = boto3.resource('dynamodb', endpoint_url='http://localhost:8001')
+            return self.ddb_prod
+
+    
+    def anon_name(self):
+        ddb = self.ddb()
+
+        tables = list(ddb.tables.all())
+        names = set([ t.table_name for t in tables ])
+
+        name = 0
+        while True:        
+            name += 1
+            entityTableName = 'entities_%s' % name
+            if entityTableName not in names:
+                return str(name)
+   
+    def createTables(self, name):
+        if self.ro:
+            return False
+        
+        entityTableName = 'entities_%s' % name
+        mapTableName    = 'map_%s' % name
+
+        ddb = self.ddb()
 
         tables = list(ddb.tables.all())
         names = [ t.table_name for t in tables ]
-
-        while True:        
-            _dbn += 1
-            entityTableName = 'entities_%s' % _dbn
-            mapTableName    = 'map_%s' % _dbn
-
-            if entityTableName not in names:
-                break
-            
+        if entityTableName in names:
+            return False
+        
         self._entities = ddb.create_table(
             TableName             = entityTableName,
             KeySchema             = [ { 'AttributeName': 'name', 'KeyType': 'HASH' }, ],
@@ -50,18 +93,25 @@ class DynamoDbDriver(object):
             ProvisionedThroughput = {'ReadCapacityUnits': 5,'WriteCapacityUnits': 5}
             )
         self._map.meta.client.get_waiter('table_exists').wait(TableName=mapTableName)
-     
+        return True
+    
     def getEntity(self, name):
         return self._entities.get_item(Key={'name': name})
+    
     def putEntity(self, item):
+        assert not self.ro
         self._entities.put_item(Item=item)
         
     def getMapEntries(self, entity):
         return self._map.query(KeyConditionExpression=Key('entity').eq(entity.meta.path()))
+    
     def putMapEntry(self, item):
+        assert not self.ro
         self._map.put_item(Item=item)
         
     def _describe(self):
-        return '%s: entities=%s, map=%s' % (self.name, 
-                                            self._entities.item_count, 
-                                            self._map.item_count)
+        return '%s, mem=%s, ro=%s: entities=%s, map=%s' % (self.name,
+                                                           self.inMem,
+                                                           self.ro,
+                                                           self._entities.item_count, 
+                                                           self._map.item_count)

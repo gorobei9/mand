@@ -64,7 +64,6 @@ _tr.add(CustomerRefDataUpdateEvent)
 
 
 def main(_odb):
-    rawdb = _odb.dbDriver
        
     with _odb:
         clock = _tr.Clock('RefData').write()
@@ -114,7 +113,7 @@ def main(_odb):
 
     print 'original db  :',  _odb._describe()
 
-    _db2 = ObjectDb(rawdb)
+    _db2 = ObjectDb(name=_odb.name)
     print 'new client db:',  _db2._describe()
     print
 
@@ -135,7 +134,7 @@ def main(_odb):
     print 'Prod db:', _odb._describe()
     print
 
-    _dbNew = ObjectDb(DynamoDbDriver(rawdb._ddb))
+    _dbNew = ObjectDb()
 
     _dbU = UnionDb(_dbNew, _odb)
 
@@ -154,7 +153,7 @@ def main(_odb):
     info(customer, verbose=False)
 
     print 'in production:'
-    _dbProd = ObjectDb(rawdb)
+    _dbProd = ObjectDb(name=_odb.name)
 
     customer = _dbProd.get(cr.meta.path())
     info(customer, verbose=False)

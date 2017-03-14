@@ -44,13 +44,13 @@ class _ObjectDbBase(object):
 class ObjectDb(_ObjectDbBase):
     # XXX - this class is still leaking abstraction from the DynamoDbDriver class.
     
-    def __init__(self, dbDriver=None):
+    def __init__(self, dbDriver=None, name=None, inMem=True, ro=None):
         if dbDriver is None:
-            from dbdriver import ddb, DynamoDbDriver
-            dbDriver = DynamoDbDriver(ddb)
+            from dbdriver import DynamoDbDriver
+            dbDriver = DynamoDbDriver(name=name, inMem=inMem, ro=ro)
         self.dbDriver = dbDriver
         super(ObjectDb, self).__init__()
-        self.name = 'O' + self.dbDriver.name
+        self.name = self.dbDriver.name
 
         _tr.RootClock('Main', db=self).write()
         self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
