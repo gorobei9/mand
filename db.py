@@ -45,18 +45,25 @@ class ObjectDb(_ObjectDbBase):
     # XXX - this class is still leaking abstraction from the DynamoDbDriver class.
     
     def __init__(self, foo=None, dbDriver=None, name=None, inMem=True, ro=None):
+        # I actually learned this idiom from Google's Tensorflow code. Thanks, guys!
+        # If you switch from a boa constructor to a keyword constructor, stick a
+        # dummy named parameter at the front: calls using the old signature can be failed early.
         if foo:
             assert False
+            
         if dbDriver is None:
             from dbdriver import DynamoDbDriver
             dbDriver = DynamoDbDriver(name=name, inMem=inMem, ro=ro)
         self.dbDriver = dbDriver
         super(ObjectDb, self).__init__()
-        self.name = self.dbDriver.name
+        self.name = 'O' + self.dbDriver.name
 
         _tr.RootClock('Main', db=self).write()
         self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
-        
+
+    def copy(self):
+        return ObjectDb(dbDriver=self.dbDriver)
+    
     def _reify(self, d, path, db):
         if 'Item' not in d:
             return None

@@ -113,7 +113,8 @@ def main(_odb):
 
     print 'original db  :',  _odb._describe()
 
-    _db2 = ObjectDb(name=_odb.name)
+    _db2 = _odb.copy()
+    
     print 'new client db:',  _db2._describe()
     print
 
@@ -153,7 +154,7 @@ def main(_odb):
     info(customer, verbose=False)
 
     print 'in production:'
-    _dbProd = ObjectDb(name=_odb.name)
+    _dbProd = _odb.copy()
 
     customer = _dbProd.get(cr.meta.path())
     info(customer, verbose=False)
