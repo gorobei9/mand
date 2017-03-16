@@ -1,4 +1,6 @@
 
+# need to fix this now we have persisted dbs...
+
 _uid = 10000
 def getUUID():
     global _uid

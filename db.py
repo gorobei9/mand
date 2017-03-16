@@ -28,7 +28,9 @@ class _ObjectDbBase(object):
     def _allEvents(self, entity):
         names = self._allEventNames(entity)
         objs = [ self.get(name) for name in names ]
-        return objs
+        # XXX - skip missing events (assume 'transaction' failed between map
+        # writes and event write.)
+        return [ o for o in objs if o is not None ]
     
     def _wroteEvent(self):
         self.cosmicAll._wroteEvent()
@@ -63,10 +65,7 @@ class ObjectDb(_ObjectDbBase):
     def copy(self):
         return ObjectDb(dbDriver=self.dbDriver)
     
-    def _reify(self, d, path, db):
-        if 'Item' not in d:
-            return None
-        item = d['Item']
+    def _reify(self, item, path, db):
         cls = _tr.cls(item['type'])
         obj = cls(None, db=db)
         ts = item['timestamp']
@@ -77,11 +76,16 @@ class ObjectDb(_ObjectDbBase):
                                  _encoding  = item['encoding'], 
                                  _timestamp = ts)
         return obj
+
+    def _getEntity(self, path):
+        return self.dbDriver.getEntity(path).get('Item')
+
+    # XXX - and why does _get() take a db? - ah, because unions
     
-    def _get(self, name, db=None):
+    def _get(self, path, db=None):
         if db is None:
             db = self
-        return self._reify(self.dbDriver.getEntity(name), name, db)
+        return self._reify(self._getEntity(path), path, db)
     
     def put(self, item):
         self.dbDriver.putEntity(item)
@@ -104,16 +108,22 @@ class UnionDb(_ObjectDbBase):
         self.name = '(%s:%s)' %  (self.frontDb.name, self.backDb.name)
         self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
         
-    def _get(self, name, db=None):
+    def _getEntity(self, path):
+        o = self.frontDb._getEntity(path)
+        if o is not None:
+            return o
+        return self.backDb._getEntity(path)
+    
+    def _get(self, path, db=None):
         # XXX - Really not adequate, would like caches on the child dbs,
         # then we cache a copy with db fixed up
         if db is None:
             db = self
         if name not in self.cache:
-            o = self.frontDb._get(name, db=db)
+            o = self.frontDb._get(path, db=db)
             if o is not None:
                 return o
-            return self.backDb._get(name, db=db)
+            return self.backDb._get(path, db=db)
 
     def put(self, item):
         self.frontDb.put(item)

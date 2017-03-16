@@ -105,15 +105,16 @@ class DynamoDbDriver(object):
         self._map.meta.client.get_waiter('table_exists').wait(TableName=mapTableName)
         return True
     
-    def getEntity(self, name):
-        return self._entities.get_item(Key={'name': name})
+    def getEntity(self, path):
+        return self._entities.get_item(Key={'name': path})
     
     def putEntity(self, item):
         assert not self.ro
         self._entities.put_item(Item=item)
         
     def getMapEntries(self, entity):
-        return self._map.query(KeyConditionExpression=Key('entity').eq(entity.meta.path()))
+        ret = self._map.query(KeyConditionExpression=Key('entity').eq(entity.meta.path()))
+        return ret
     
     def putMapEntry(self, item):
         assert not self.ro

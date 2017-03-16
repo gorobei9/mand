@@ -96,8 +96,6 @@ class DBOMeta(object):
         Monitor.msg('DB', -1, 'end', metaobj=self)
 
     def write(self):
-        if self._data:
-            raise RuntimeError('Truly, do not write entities with stored fields.')
         if not self.isNew:
             return self
         self.isNew = False

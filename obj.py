@@ -82,6 +82,9 @@ class Event(_DBO):
         return ret
     
     def write(self, validTime=None):
+        path = self.meta.path()
+        if self.meta.db._getEntity(path):
+            assert False, 'Event %s seems to already exist' % path
         ret = super(Event, self).write(validTime=validTime, _containers=self._containers())
         self.meta.db._wroteEvent()
         return ret

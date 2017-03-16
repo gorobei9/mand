@@ -1,4 +1,8 @@
 
+import json
+import zlib
+from monitor import Monitor
+
 class EncDec(object):
     # XXX - encoding really depends on the underlying physical db, this class
     # should be more tied to that
@@ -17,8 +21,13 @@ class EncDec(object):
     @classmethod
     def encode(cls, value):
         for e in cls.encoders:
-            if e.test(value):
-                return e.name, e.encode(value)
+            if e.test:
+                if e.test(value):
+                    return e.name, e.encode(value)
+            else:
+                v = e.encode(value)
+                if v is not None:
+                    return e.name, v
         return None, value
     
     @classmethod
@@ -50,4 +59,25 @@ addEncoding('OL',
             lambda v: isinstance(v, list) and v and hasattr(v[0], '_isDBO'),
             lambda v: [ _persist(o).meta.path() for o in v ],
             lambda v, meta: [ meta.db.get(p) for p in v ]
-           )         
+           )
+
+"""
+# XXX - This just seems to fight dynamo's encoders...
+
+def comp(v):
+    s = json.dumps(v)
+    c = s.encode('utf-7').encode('zlib_codec')
+    if len(c) < len(s):
+        Monitor.msg('Write', 1, 'compress', value='%s to %s' % (len(s), len(c)))
+        return c
+
+def decomp(v, meta):
+    s = v.decode('zlib_codec').decode('utf-7')
+    d = json.loads(s)
+    return d
+
+addEncoding('Z',
+            None,
+            comp,
+            decomp)
+"""
