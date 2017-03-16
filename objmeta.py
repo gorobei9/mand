@@ -5,7 +5,7 @@ from type_registry import _tr
 from context import Context
 from noval import _noVal
 from timestamp import Timestamp
-from uuid import getUUID
+from guid import getUUID
 from monitor import Monitor
 
 class DBOMeta(object):

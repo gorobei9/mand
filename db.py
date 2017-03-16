@@ -66,6 +66,8 @@ class ObjectDb(_ObjectDbBase):
         return ObjectDb(dbDriver=self.dbDriver)
     
     def _reify(self, item, path, db):
+        if item is None:
+            return None
         cls = _tr.cls(item['type'])
         obj = cls(None, db=db)
         ts = item['timestamp']

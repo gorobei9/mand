@@ -18,3 +18,20 @@ def flatten(d, deleteZeros=True):
         merge(ret, v, deleteZeros=deleteZeros)
     return ret
 
+"""
+def to_short_form(l):
+    keys = set()
+    for e in l:
+        keys.update(e.keys())
+    keys = list(keys)
+    data = []
+    for e in l:
+        data.append( [ e.get(k) for k in keys] )
+    return keys, data
+        
+def from_short_form(keys, data):
+    ret = []
+    for e in data:
+        ret.append( dict( [ (k, e[i]) for i, k in enumerate(keys) if e[i] is not None ] ) )
+    return ret
+"""

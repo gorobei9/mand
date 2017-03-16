@@ -90,7 +90,7 @@ class DynamoDbDriver(object):
             TableName             = entityTableName,
             KeySchema             = [ { 'AttributeName': 'name', 'KeyType': 'HASH' }, ],
             AttributeDefinitions  = [ { 'AttributeName': 'name', 'AttributeType': 'S' }, ],
-            ProvisionedThroughput = { 'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5 }
+            ProvisionedThroughput = { 'ReadCapacityUnits': 100, 'WriteCapacityUnits': 100 }
             )
         self._entities.meta.client.get_waiter('table_exists').wait(TableName=entityTableName)
 
@@ -100,7 +100,7 @@ class DynamoDbDriver(object):
                                       {'AttributeName': 'key',    'KeyType': 'RANGE'}],
             AttributeDefinitions  = [ {'AttributeName': 'entity', 'AttributeType': 'S'},
                                       {'AttributeName': 'key',    'AttributeType': 'S'},],
-            ProvisionedThroughput = {'ReadCapacityUnits': 5,'WriteCapacityUnits': 5}
+            ProvisionedThroughput = {'ReadCapacityUnits': 100,'WriteCapacityUnits': 100 }
             )
         self._map.meta.client.get_waiter('table_exists').wait(TableName=mapTableName)
         return True

@@ -7,7 +7,7 @@ class Node(object):
         self.value = value
         self.key = key
         self.inputs = set()
-        self.outputs = set()
+        self.outputs = set() # hardly pushing its weight: only used by _invalidate
 
     def __repr__(self):
         key = self.key

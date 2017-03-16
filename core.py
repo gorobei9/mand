@@ -9,9 +9,9 @@ from encdec import EncDec
 from noval import _noVal
 from node import Node
 from context import Context
-from uuid import getUUID
+from guid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta
-from dbo import DBOMetaClass
+from dbo import DBOMetaClass, _DBO
 from obj import Entity, Event
 from utils import displayTable, displayDict, displayListOfDicts
 from graph import node

@@ -48,6 +48,7 @@ class PrintMonitor(Monitor):
                 v = kw.pop(k)
                 strs.append('%s: %s' % (k, f(v)))
         addStr('value',   lambda v: strForm(v, 20))
+        addStr('url',     lambda v: strForm(v, 80))
         addStr('ctx',     lambda v: self.ctxStr(v))
         addStr('metaobj', lambda v: v.path())
         addStr('obj',     lambda v: v.meta.path())

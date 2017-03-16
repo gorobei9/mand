@@ -32,6 +32,8 @@ class EncDec(object):
     
     @classmethod
     def decode(cls, name, value, meta):
+        # name is the encoder name
+        # meta currently only used to get db
         if name is None:
             return value
         return cls.decoders[name](value, meta)
