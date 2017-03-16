@@ -1,5 +1,5 @@
 
-from mand.core import DBOMetaClass, node, EncDec
+from mand.core import DBOMetaClass, node, EncDec, _DBO, _tr
 from mand.lib.refdata import RefData
 
 def dataField(f):
@@ -50,7 +50,7 @@ class ExternalRefData(RefData):
             data[k] = list(EncDec.encode(v))
         super(ExternalRefData, self).update(**data)
 
-            def _splitLargeData(self, obs, n=1000):
+    def _splitLargeData(self, obs, n=1000):
         i = 0
         ret = []
         while i<len(obs):
