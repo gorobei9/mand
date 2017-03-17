@@ -13,7 +13,7 @@ from guid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta
 from dbo import DBOMetaClass, _DBO
 from obj import Entity, Event
-from utils import displayTable, displayDict, displayListOfDicts
+from utils import displayTable, displayDict, displayListOfDicts, displayHeader, displayMarkdown
 from graph import node
 from cosmic_all import CosmicAll
 from root_clock import RootClock

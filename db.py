@@ -72,6 +72,9 @@ class ObjectDb(_ObjectDbBase):
         self.getObj(_tr.RootClock, 'Main')
         self.cosmicAll = self.getObj(_tr.CosmicAll, 'TheCosmicAll')
 
+    def isRO(self):
+        return self.dbDriver.ro
+    
     def copy(self):
         return ObjectDb(dbDriver=self.dbDriver)
     
@@ -120,6 +123,9 @@ class UnionDb(_ObjectDbBase):
         self.name = '(%s:%s)' %  (self.frontDb.name, self.backDb.name)
         self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
         
+    def isRO(self):
+        return self.frontDb.isRO()
+    
     def _getEntity(self, path):
         o = self.frontDb._getEntity(path)
         if o is not None:

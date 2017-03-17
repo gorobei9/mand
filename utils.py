@@ -67,3 +67,10 @@ def displayDict(d):
     t = '\n'.join(strs)
     from IPython.display import display, Markdown
     display(Markdown(t))
+
+def displayMarkdown(md):
+    from IPython.display import display, Markdown
+    display(Markdown(md))
+
+def displayHeader(txt):
+    displayMarkdown('# ' + txt)

@@ -74,7 +74,8 @@ class _DBO(object):
         ret = db.get(path)
         if ret is None and create:
             ret = cls(name, db=db)
-            ret.write()
+            if not db.isRO(): # XXX - hmm?
+                ret.write()
         return ret
     
     @classmethod

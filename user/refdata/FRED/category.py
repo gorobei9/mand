@@ -44,5 +44,24 @@ class FredCategory(ExternalRefData):
     @node
     def series(self):
         return self.getObjs(_tr.FredSeries, self.seriesNames())
-    
+
+    def display(self):
+        from mand.core import displayListOfDicts, displayHeader, displayMarkdown
+        displayHeader(self.name())
+        displayMarkdown('* %s sub-categories\n* %s series' % (len(self.childCategoryInfo()),
+                                                              len(self.seriesNames())))
+        if self.childCategoryInfo():
+            displayListOfDicts(self.childCategoryInfo())
+        if self.series():
+            d = []
+            for s in self.series():
+                info = s.info()
+                d.append( { 'title': info['title'],
+                            'popularity': info['popularity'],
+                            'frequency': info['frequency'],
+                            'units': info['units'],
+                            } )
+            d = sorted(d, key=lambda x: (-int(x['popularity']), x['title']))
+            displayListOfDicts(d)
+            
 _tr.add(FredCategory)

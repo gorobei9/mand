@@ -55,7 +55,13 @@ class FredSeries(ExternalRefData):
         plt.plot_date(x=days, y=obs)
         plt.title(self.info()['title'])
         plt.show()
-        
+
+    def display(self):
+        from mand.core import displayDict, displayHeader
+        displayHeader(self.name())
+        displayDict(self.info())
+        self.plot()
+
     """
     ['observation_end', 'last_updated', 'observation_start', 'title', 'seasonal_adjustment_short', 
      'seasonal_adjustment', 'notes', 'popularity', 'realtime_end', 'frequency', 'units_short', 
