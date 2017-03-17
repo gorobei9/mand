@@ -62,24 +62,3 @@ addEncoding('OL',
             lambda v: [ _persist(o).meta.path() for o in v ],
             lambda v, meta: [ meta.db.get(p) for p in v ]
            )
-
-"""
-# XXX - This just seems to fight dynamo's encoders...
-
-def comp(v):
-    s = json.dumps(v)
-    c = s.encode('utf-7').encode('zlib_codec')
-    if len(c) < len(s):
-        Monitor.msg('Write', 1, 'compress', value='%s to %s' % (len(s), len(c)))
-        return c
-
-def decomp(v, meta):
-    s = v.decode('zlib_codec').decode('utf-7')
-    d = json.loads(s)
-    return d
-
-addEncoding('Z',
-            None,
-            comp,
-            decomp)
-"""

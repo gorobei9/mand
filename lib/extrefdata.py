@@ -2,6 +2,23 @@
 from mand.core import DBOMetaClass, node, EncDec, _DBO, _tr
 from mand.lib.refdata import RefData
 
+def listOfDict_compress(l):
+    keys = set()
+    for e in l:
+        keys.update(e.keys())
+    keys = list(keys)
+    data = []
+    for e in l:
+        data.append( [ e.get(k) for k in keys] )
+    return [keys, data]
+        
+def listOfDict_decompress(d):
+    keys, data = d
+    ret = []
+    for e in data:
+        ret.append( dict( [ (k, e[i]) for i, k in enumerate(keys) if e[i] is not None ] ) )
+    return ret
+
 def dataField(f):
     def fn(self):
         return self.state().get(f.func_name)
@@ -54,14 +71,16 @@ class ExternalRefData(RefData):
         i = 0
         ret = []
         while i<len(obs):
-            ret.append(ExternalDataPage(db=self.meta.db, data=obs[i:i+n]))
+            data = obs[i:i+n]
+            data = listOfDict_compress(data)
+            ret.append(ExternalDataPage(db=self.meta.db, data=data))
             i += n
         return ret
     
     def _joinLargeData(self, pages):
         ret = []
         for p in pages:
-            ret.extend(p.data())
+            ret.extend(listOfDict_decompress(p.data()))
         return ret
     
 class ExternalDataPage(_DBO):
