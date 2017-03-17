@@ -39,6 +39,7 @@ class RefData(Entity):
         ev.write(validTime=validTime)
         return ev
 
+    @node
     def state(self):
         ret = {}
         for e in self.activeEvents():

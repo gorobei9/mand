@@ -44,7 +44,7 @@ class _DBO(object):
             raise RuntimeError('Setting non-stored fields: %s' % ', '.join(bad))
         
     def write(self, **kwargs):
-        Monitor.msg('Object/write', 1, 'write', obj=self)
+        Monitor.msg('Object/write', 1, 'begin', obj=self)
         if self.meta.isNew:
             for n in self._storedFields():
                 getattr(self, n)()
@@ -57,12 +57,14 @@ class _DBO(object):
     def _uiFields(self, key=None):
         return [ n['name'] for n in self._nodes ]
 
-    def getObjs(self, cls, names, create=True):
-        return [ self.getObj(cls, name, create=create) for name in names ]
+    # not really the right place for this, but so convenient...
     
     def getObj(self, cls, name, create=True):
-        ret = cls.get(name, db=self.meta.db, create=create)
+        ret = self.meta.db.getObj(cls, name, create=create)
         return ret
+    
+    def getObjs(self, cls, names, create=True):
+        return [ self.getObj(cls, name, create=create) for name in names ]
     
     @classmethod
     def get(cls, name, db, create=False):

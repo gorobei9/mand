@@ -25,7 +25,6 @@ class ExternalRefData(RefData):
     @node
     def state(self):
         ret = super(ExternalRefData, self).state()
-        # do something sensible for now if this is a new object:
         if ret:
             data = {}
             for k, v in ret.items():
@@ -33,6 +32,7 @@ class ExternalRefData(RefData):
                 data[k] = EncDec.decode(t, value, self.meta)
             return data
         else:
+            # do something sensible for now if this is a new object:
             ret = self._fetchData()
             return ret
     

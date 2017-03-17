@@ -1,6 +1,7 @@
 
 from type_registry import _tr
 from timestamp import Timestamp
+from monitor import Monitor
 
 class _ObjectDbBase(object):
     # A class more designed to avoid retyped code than doing anything good
@@ -19,7 +20,9 @@ class _ObjectDbBase(object):
 
     def get(self, name):
         if name not in self.cache:
+            Monitor.msg('Db.Get', 1, 'begin', value=name)
             self.cache[name] = self._get(name)
+            Monitor.msg('Db.Get', -1, 'end', value=name)
         return self.cache[name]
     
     def _allEventNames(self, entity):
@@ -42,7 +45,13 @@ class _ObjectDbBase(object):
     def currentDb(cls):
         return _ObjectDbBase._dbs[-1]
 
+    def getObj(self, cls, name, create=True):
+        ret = cls.get(name, db=self, create=create)
+        return ret
 
+    def getObjs(self, cls, names, create=True):
+        return [ self.getObj(cls, name, create=create) for name in names ]
+    
 class ObjectDb(_ObjectDbBase):
     # XXX - this class is still leaking abstraction from the DynamoDbDriver class.
     
@@ -59,8 +68,9 @@ class ObjectDb(_ObjectDbBase):
         super(ObjectDb, self).__init__()
         self.name = 'O' + self.dbDriver.name
 
-        _tr.RootClock('Main', db=self).write()
-        self.cosmicAll = _tr.CosmicAll('TheCosmicAll', db=self).write()
+        # should fail fast if we are ro and db not set up...
+        self.getObj(_tr.RootClock, 'Main')
+        self.cosmicAll = self.getObj(_tr.CosmicAll, 'TheCosmicAll')
 
     def copy(self):
         return ObjectDb(dbDriver=self.dbDriver)
