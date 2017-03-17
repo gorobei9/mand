@@ -6,7 +6,11 @@ class FredSeries(ExternalRefData):
     @node 
     def fredManager(self):
         return self.getObj(_tr.FredManager, 'Main')
-    
+
+    @node
+    def fredClock(self):
+        return self.getObj(_tr.FredClock, 'Main')
+        
     @node
     def name(self):
         return self.meta.name()
@@ -32,9 +36,12 @@ class FredSeries(ExternalRefData):
         # In real life, we would depend on a custom date/date timestamp for observation visibility
         import datetime
         def parseDate(str):
-            return datetime.datetime.strptime(str, '%Y-%m-%d')
+            return datetime.datetime.strptime(str, '%Y-%m-%d').date()
         vis = {}
         updated = {}
+        
+        cutoffs = self.fredClock().cutoffs()
+        
         for record in self.allObservations():
             value = record['value']
             if value == '.':
@@ -42,6 +49,11 @@ class FredSeries(ExternalRefData):
             observationDate = parseDate(record['date'])
             updateDate = parseDate(record['realtime_start'])
             value = float(value)
+            if cutoffs:
+                if observationDate > cutoffs.validDate:
+                    continue
+                if updateDate > cutoffs.transactionDate:
+                    contine
             if observationDate not in vis or updated[observationDate] < updateDate:
                 vis[observationDate] = value
                 updated[observationDate] = updateDate
@@ -52,7 +64,7 @@ class FredSeries(ExternalRefData):
         import matplotlib.pyplot as plt
         d = self.data()
         days, obs = zip(*d)
-        plt.plot_date(x=days, y=obs)
+        plt.plot_date(x=days, y=obs, marker='.')
         plt.title(self.info()['title'])
         plt.show()
 

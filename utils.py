@@ -61,7 +61,7 @@ def displayDict(d):
     strs = [ '|%s|' % '|'.join(names),
              '|%s|' % '|'.join([ '-' for f in names])
              ]
-    for k, v in d.items():
+    for k, v in sorted(d.items()):
         s = strForm(v)
         strs.append( '|%s' % '|'.join([k, s]) )
     t = '\n'.join(strs)

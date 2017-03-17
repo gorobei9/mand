@@ -45,6 +45,10 @@ class _ObjectDbBase(object):
     def currentDb(cls):
         return _ObjectDbBase._dbs[-1]
 
+    # XXX - sort this mess out
+    # getObj should just be get
+    # and stop bouncing between the class and the db!
+    
     def getObj(self, cls, name, create=True):
         ret = cls.get(name, db=self, create=create)
         return ret

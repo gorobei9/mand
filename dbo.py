@@ -76,6 +76,8 @@ class _DBO(object):
             ret = cls(name, db=db)
             if not db.isRO(): # XXX - hmm?
                 ret.write()
+            else:
+                db.cache[path] = ret
         return ret
     
     @classmethod
