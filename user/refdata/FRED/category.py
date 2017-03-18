@@ -7,7 +7,7 @@ class FredCategory(ExternalRefData):
     @node 
     def fredManager(self):
         return self.getObj(_tr.FredManager, 'Main')
-    
+
     @node
     def id(self):
         return self.meta.name()

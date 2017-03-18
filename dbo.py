@@ -60,7 +60,11 @@ class _DBO(object):
     # not really the right place for this, but so convenient...
     
     def getObj(self, cls, name, create=True):
-        ret = self.meta.db.getObj(cls, name, create=create)
+        try:
+            ret = self.meta.db.getObj(cls, name, create=create)
+        except:
+            print 'Problem getting %s' % name
+            raise
         return ret
     
     def getObjs(self, cls, names, create=True):

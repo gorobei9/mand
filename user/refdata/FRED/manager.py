@@ -112,7 +112,7 @@ class FredManager(Entity):
             for i in range(1, max_results_needed // self.max_results_per_request + 1):
                 offset = i * self.max_results_per_request
                 next_data, _ = self.__do_series_search(url + '&offset=' + str(offset))
-                data.append(next_data)
+                data.extend(next_data)
         return data
     
     def search_by_category(self, category_id):
