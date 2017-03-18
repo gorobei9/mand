@@ -50,7 +50,8 @@ class ExternalRefData(RefData):
             return data
         else:
             # do something sensible for now if this is a new object:
-            ret = self._fetchData()
+            # not really adequate, cos we probably don't want to write to a front mem-db...
+            ret = self._persist()
             return ret
     
     def _fetchData(self):
@@ -59,7 +60,16 @@ class ExternalRefData(RefData):
             v = getattr(self, name)._fetcher(self)
             data[name] = v
         return data
-    
+
+    def _persist(self):
+        rawData = self._fetchData()
+        if not self._allEvents() and not self.meta.db.isRO():
+            data = {}
+            for k, v in rawData.items():
+                data[k] = list(EncDec.encode(v))
+                super(ExternalRefData, self).update(**data)
+        return rawData
+        
     def update(self):
         rawData = self._fetchData()
         data = {}

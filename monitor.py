@@ -23,6 +23,7 @@ class Monitor(object):
             if k in kw:
                 v = kw.pop(k)
                 strs.append('%s: %s' % (k, f(v)))
+        addStr('path',    lambda v: strForm(v, 40))
         addStr('value',   lambda v: strForm(v, 40))
         addStr('url',     lambda v: strForm(v, 80))
         addStr('ctx',     lambda v: self.ctxStr(v))

@@ -54,14 +54,11 @@ class FredCategory(ExternalRefData):
             displayListOfDicts(self.childCategoryInfo())
         if self.series():
             d = []
+            names = [ 'id', 'title', 'popularity', 'frequency', 'units' ]
             for s in self.series():
                 info = s.info()
-                d.append( { 'title': info['title'],
-                            'popularity': info['popularity'],
-                            'frequency': info['frequency'],
-                            'units': info['units'],
-                            } )
+                d.append( dict( [ (n, info[n]) for n in names ] ) )
             d = sorted(d, key=lambda x: (-int(x['popularity']), x['title']))
-            displayListOfDicts(d)
+            displayListOfDicts(d, names=names)
             
 _tr.add(FredCategory)

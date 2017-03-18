@@ -44,14 +44,12 @@ class _DBO(object):
             raise RuntimeError('Setting non-stored fields: %s' % ', '.join(bad))
         
     def write(self, **kwargs):
-        Monitor.msg('Object/write', 1, 'begin', obj=self)
         if self.meta.isNew:
             for n in self._storedFields():
                 getattr(self, n)()
         self.meta.write(**kwargs)
         db = self.meta.db
         db.cache[self.meta.path()] = self
-        Monitor.msg('Object/write', -1, 'end', obj=self)
         return self
 
     def _uiFields(self, key=None):

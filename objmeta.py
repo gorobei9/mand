@@ -78,8 +78,8 @@ class DBOMeta(object):
             raise RuntimeError('non root-context write semantics not yet figured out.')
         if self.typeId.startswith('anon:'):
             raise RuntimeError('trying to persist unregistered class of type %s' % self.typeId)
-        Monitor.msg('DB', 1, 'write', metaobj=self)
         path = self.path()
+        Monitor.msg('Db.Put', 1, 'begin', path=path)
         self._toStoredForm() 
         op = []
         for k, v in self._encoding.items():
@@ -93,7 +93,7 @@ class DBOMeta(object):
                 }
         db = self.db
         db.put(item)
-        Monitor.msg('DB', -1, 'end', metaobj=self)
+        Monitor.msg('Db.Put', -1, 'end', path=path)
 
     def write(self):
         if not self.isNew:

@@ -20,9 +20,9 @@ class _ObjectDbBase(object):
 
     def get(self, name):
         if name not in self.cache:
-            Monitor.msg('Db.Get', 1, 'begin', value=name)
+            Monitor.msg('Db.Get', 1, 'begin', path=name)
             self.cache[name] = self._get(name)
-            Monitor.msg('Db.Get', -1, 'end', value=name)
+            Monitor.msg('Db.Get', -1, 'end', path=name)
         return self.cache[name]
     
     def _allEventNames(self, entity):
