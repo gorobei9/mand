@@ -141,7 +141,7 @@ class UnionDb(_ObjectDbBase):
         # then we cache a copy with db fixed up
         if db is None:
             db = self
-        if name not in self.cache:
+        if path not in self.cache:
             o = self.frontDb._get(path, db=db)
             if o is not None:
                 return o

@@ -5,7 +5,7 @@ class Workbook(Entity):
     
     @node
     def clock(self):
-        return Clock.get('Workflow', db=self.meta.db)
+        return self.getObj(_tr.Clock, 'Workflow')
     
     def tickets(self):
         # A book has a ticket iff the ticket is contributing an item to the book

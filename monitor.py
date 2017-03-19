@@ -1,5 +1,7 @@
 
 from printutils import strForm
+from utils import displayListOfDicts, displayMarkdown
+import time
 
 class Monitor(object):
     monitors = []
@@ -23,7 +25,7 @@ class Monitor(object):
             if k in kw:
                 v = kw.pop(k)
                 strs.append('%s: %s' % (k, f(v)))
-        addStr('path',    lambda v: strForm(v, 40))
+        addStr('path',    lambda v: strForm(v, 80))
         addStr('value',   lambda v: strForm(v, 40))
         addStr('url',     lambda v: strForm(v, 80))
         addStr('ctx',     lambda v: self.ctxStr(v))
@@ -83,5 +85,75 @@ class SummaryMonitor(Monitor):
         for i in sorted(self.counts.items()):
             print '  %20s: %5d' % i
         
+class ProfileMonitor(Monitor):
 
-    
+    def __init__(self, mode=None):
+        self.stack = []
+        self.result = []
+        self.mode = mode
+        
+    def message(self, sys, depthInc, action, **kw):
+        if depthInc == 1:
+            v = [kw, time.clock(), 0]
+            self.stack.append(v)
+            
+        if depthInc == -1:
+            kw, start, tSub = self.stack.pop()
+            t = time.clock() - start
+            tFn = t - tSub
+            if self.stack:
+                self.stack[-1][-1] += t
+            
+            self.result.append((tFn, t, sys, kw))
+             
+    def dumpRaw(self):
+        for tFn, t, sys, kw in self.result:
+            key = self.kwToStr(kw)
+            print '%8.4f %8.4f %-16s: %s' % (tFn, t, sys, key)
+            
+    def displaySum(self):
+        if not self.result:
+            displayMarkdown('No profile info was recorded.')
+        n = {}
+        cumT = {}
+        cumTCalc = {}
+        tScale = 1e6
+        for tFn, t, sys, kw in self.result:
+            if 'path'in kw:
+                fn = kw.get('path', '//').split('/')[2]
+            else:
+                fn = kw.get('key', (None, ''))[1]
+            key = (sys, fn)
+            cumT[key] = cumT.get(key, 0) + t * tScale
+            cumTCalc[key] = cumTCalc.get(key, 0) + tFn * tScale
+            n[key] = n.get(key, 0) + 1
+        res = []
+        def f(d):
+            return format(int(d), ',d')
+        for key in n:
+            line = { 'n':         f(n[key]), 
+                     'cumT':      f(cumT[key]),
+                     'cumT/call': f(cumT[key]/n[key]),
+                     'calcT':     f(cumTCalc[key]),
+                     'sys':       key[0],
+                     'fn':        key[1],
+                     'key':       cumT[key],
+                     }
+            res.append(line)
+        res = sorted(res, key=lambda d: -d['key'])
+        txt = """Profile by nodes.
+* times are in microseconds
+* cumT is total time spent in funtion
+* calcT is time spent in function, but not in a child node"""
+        displayMarkdown(txt)
+        displayListOfDicts(res, names=['fn', 'n', 'cumT', 'calcT', 'cumT/call', 'sys'])
+        
+    def onExit(self):
+        mode = self.mode
+        if mode is None:
+            self.dumpRaw()
+        elif mode == 'sum':
+            self.displaySum()
+        else:
+            assert False, 'unknown profiler mode: %s' % mode
+            

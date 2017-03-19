@@ -1,6 +1,6 @@
 
 from mand.core import node, _tr
-from mand.lib.refdate import RefDataUpdateEvent, RefData
+from mand.lib.refdata import RefDataUpdateEvent, RefData
             
 class PortfolioUpdateEvent(RefDataUpdateEvent):
 
@@ -14,7 +14,7 @@ class Portfolio(RefData):
     
     @node
     def clock(self):
-        return _tr.Clock.get('Portfolio', db=self.meta.db)
+        return self.getObj(_tr.Clock, 'Portfolio')
     
     @node
     def children(self):
@@ -44,6 +44,5 @@ class Portfolio(RefData):
         for c in self.children():
             c.prn(depth+1)
             
-_tr.add(Book)
 _tr.add(Portfolio)
 _tr.add(PortfolioUpdateEvent)

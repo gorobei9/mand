@@ -44,7 +44,6 @@ def getValue(f, fName, a, k):
     _dm.push(node)
 
     try:
-        _dm.establishDep()
         Monitor.msg('GetValue', 1, 'begin', key=key, ctx=ctx)
         v = node.value
         if v is not _noVal:
@@ -67,6 +66,7 @@ def getValue(f, fName, a, k):
         return v
 
     finally:
+        _dm.establishDep()
         _dm.pop()
 
 def makeFn(f, name, info={}):

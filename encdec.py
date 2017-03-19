@@ -48,7 +48,8 @@ def addEncoding(name, test, encode, decode):
     EncDec(name, test, encode, decode)
 
 def _persist(o):
-    o.write()
+    if o.meta.isNew:
+        o.write()
     return o
 
 addEncoding('O',
