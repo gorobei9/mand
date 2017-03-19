@@ -1,5 +1,5 @@
 
-from mand.core import node, _tr
+from mand.core import node, _tr, merge
 from mand.lib.refdata import RefDataUpdateEvent, RefData
             
 class PortfolioUpdateEvent(RefDataUpdateEvent):
@@ -39,6 +39,20 @@ class Portfolio(RefData):
                 books.add(b)
         return list(books)
 
+    @node
+    def items(self):
+        ret = {}
+        for c in self.children():
+            merge(ret, c.items())
+        return ret
+
+    @node
+    def tickets(self):
+        ret = set()
+        for c in self.children():
+            ret.update(c.tickets())
+        return list(ret)
+    
     def prn(self, depth=0):
         print '  '*depth, self.meta.name()
         for c in self.children():

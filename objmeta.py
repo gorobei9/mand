@@ -110,7 +110,7 @@ class DBOMeta(object):
 class EntityMeta(DBOMeta):
     def write(self):
         if self._data:
-            raise RuntimeError('Truly, do not write entities with stored fields.')
+            raise RuntimeError('Truly, do not write entities (%s) with stored fields.' % self.path())
         if not self.isNew:
             return self
         self.isNew = False

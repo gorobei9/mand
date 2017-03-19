@@ -1,6 +1,7 @@
 
-import json
-import zlib
+import datetime
+import dateutil
+import decimal
 from monitor import Monitor
 
 class EncDec(object):
@@ -62,4 +63,18 @@ addEncoding('OL',
             lambda v: isinstance(v, list) and v and hasattr(v[0], '_isDBO'),
             lambda v: [ _persist(o).meta.path() for o in v ],
             lambda v, meta: [ meta.db.get(p) for p in v ]
+           )
+
+addEncoding('D',
+            lambda v: isinstance(v, datetime.datetime),
+            lambda v: v.isoformat(),
+            lambda v, meta: dateutil.parser.parse(v)
+           )
+
+# gross hack - we shouldn't be storing these in any db, pretty much:
+
+addEncoding('F',
+            lambda v: isinstance(v, float),
+            lambda v: decimal.Decimal(str(v)),
+            lambda v, meta: v
            )

@@ -1,12 +1,24 @@
 
-from mand.core import _tr, Entity, Event, node, Clock, merge, flatten, strForm
+from mand.core import _tr, Entity, Event, _DBO, node, Clock, merge, flatten, strForm
 
 class Workbook(Entity):
     
     @node
     def clock(self):
         return self.getObj(_tr.Clock, 'Workflow')
-    
+
+    @node
+    def items(self):
+        evs = self.activeEvents()
+        ret = {}
+        for e in evs:
+            ibb = e._itemsByBookByTicket() # { book: { ticket: { item: q }}}
+            items = ibb.get(self, {})      # { ticket: (item: q } )}
+            for v in items.values():
+                merge(ret,v)
+        return ret
+
+    @node    
     def tickets(self):
         # A book has a ticket iff the ticket is contributing an item to the book
         evs = self.activeEvents()
@@ -15,7 +27,7 @@ class Workbook(Entity):
             ibb = e._itemsByBookByTicket() # { book: { ticket: { item: q }}}
             items = ibb.get(self, {})      # { ticket: (item: q } )}
             merge(ret, items)
-        return ret.keys()
+        return self.items().keys()
   
     @node
     def refData(self):
@@ -112,7 +124,7 @@ class WorkTicket(Entity):
         return ev
 
 
-class WorkItem(Entity):
+class WorkItem(_DBO):
     pass
 
 
