@@ -70,8 +70,11 @@ class ExternalRefData(RefData):
                 super(ExternalRefData, self).update(**data)
         return rawData
         
-    def update(self):
-        rawData = self._fetchData()
+    def update(self, **kwargs):
+        if kwargs:
+            rawData = kwargs
+        else:
+            rawData = self._fetchData()
         data = {}
         for k, v in rawData.items():
             data[k] = list(EncDec.encode(v))
