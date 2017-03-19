@@ -74,8 +74,6 @@ class DBOMeta(object):
         self._data[name] = value
         
     def _write(self, timestamp):
-        if not Context.inRootContext():
-            raise RuntimeError('non root-context write semantics not yet figured out.')
         if self.typeId.startswith('anon:'):
             raise RuntimeError('trying to persist unregistered class of type %s' % self.typeId)
         path = self.path()
@@ -135,6 +133,8 @@ class EventMeta(DBOMeta):
                 m = _MapElement(v, self, timestamp)
                 m.write()
             self._timestamp = timestamp
+            if not Context.inRootContext():
+                raise RuntimeError('non root-context write semantics not yet figured out.')
             self._write(timestamp)
         except:
             self.isNew = True

@@ -61,7 +61,7 @@ class _DBO(object):
         try:
             ret = self.meta.db.getObj(cls, name, create=create)
         except:
-            print 'Problem getting %s' % name
+            print 'Problem getting %s of class %s' % (name, cls)
             raise
         return ret
     
