@@ -72,7 +72,6 @@ addEncoding('D',
            )
 
 # gross hack - we shouldn't be storing these in any db, pretty much:
-
 addEncoding('F',
             lambda v: isinstance(v, float),
             lambda v: num(v),

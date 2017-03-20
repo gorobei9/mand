@@ -2,6 +2,7 @@
 from type_registry import _tr
 from objmeta import DBOMeta
 from monitor import Monitor
+from number import num
 
 class DBOMetaClass(type):
     def __new__(cls, name, parents, attrs):
@@ -32,6 +33,10 @@ class _DBO(object):
     
     def __init__(self, name=None, db=None, **kwargs):
         self._checkStoredFields(kwargs)
+        for k, v in kwargs.items():
+            # XXX - fix - not really adequate
+            if isinstance(v, float):
+                kwargs[k] = num(v)
         self.meta = self._instanceMetaclass(self, name=name, db=db, kwargs=kwargs)
     
     def _checkStoredFields(self, kwargs):
