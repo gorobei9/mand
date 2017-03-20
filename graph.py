@@ -27,6 +27,12 @@ def setDependencyManager(dm):
     global _dm
     _dm = dm
 
+def find(bm, fn):
+    # XXX - sort this out
+    c = Context.current()
+    v = bm()
+    n = c.getBM(bm)
+    return n.find(fn)
     
 def getValue(f, fName, a, k):
     # XXX - this doesn't handle methods with args correctly
