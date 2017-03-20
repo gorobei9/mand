@@ -1,7 +1,7 @@
 
 import datetime
 import dateutil
-import decimal
+from number import num
 from monitor import Monitor
 
 class EncDec(object):
@@ -75,6 +75,6 @@ addEncoding('D',
 
 addEncoding('F',
             lambda v: isinstance(v, float),
-            lambda v: decimal.Decimal(str(v)),
+            lambda v: num(v),
             lambda v, meta: v
            )

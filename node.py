@@ -2,10 +2,11 @@
 from noval import _noVal
 
 class Node(object):
-    def __init__(self, ctx, key, value):
+    def __init__(self, ctx, key, value, tweakPoint=None):
         self.ctx = ctx
         self.value = value
         self.key = key
+        self.tweakPoint = tweakPoint # XXX - fix this mess
         self.inputs = set()
         self.outputs = set() # hardly pushing its weight: only used by _invalidate
 
@@ -14,6 +15,17 @@ class Node(object):
         ctx = self.ctx
         return '<%s@%x/%s in %s>' % (key[0].__class__.__name__, id(key[0]), key[1], ctx.name)
 
+    def find(self, fn):
+        ret = []
+        def _find(node):
+            if fn(node):
+                ret.append(node)
+            else:
+                for i in node.inputs:
+                    _find(i)
+        _find(self)
+        return list(ret)
+    
     def printInputGraph(self, depth=0):
         if self.value is _noVal:
             print '  '*depth, self, '*not evaluated*'

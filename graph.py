@@ -39,7 +39,8 @@ def getValue(f, fName, a, k):
         ctx = Context._root()
     else:
         ctx = Context.current()
-    node = ctx.getNode(key)
+    bm = getattr(obj, name)
+    node = ctx.getNode(key, boundMethod=bm)
 
     _dm.push(node)
 

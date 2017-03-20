@@ -5,17 +5,18 @@ from node import Node
 
 class ContextBase(object):
 
-    def getCBM(self, k):
+    def getBM(self, k):
         key = (k.im_self, k.nodeInfo['key'])
-        node = self.getNode(key)
+        node = self.getNode(key, boundMethod=k)
         return node
     
-    def getNode(self, key):
+    def getNode(self, key, boundMethod):
         v = self.get(key)
         if v:
             return v
         else:
-            node = Node(self, key, value=_noVal)
+            tweakPoint = boundMethod
+            node = Node(self, key, value=_noVal, tweakPoint=tweakPoint)
             self.cache[key] = node
             return node
             
