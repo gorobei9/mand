@@ -44,7 +44,7 @@ class Context(ContextBase):
         self.name = name if name else '%s' % id(name)
         if p:
             self.name = '%s:%s' % (p.name, self.name)
-        Monitor.msg('Context', 0, 'create', ctx=self)
+        Monitor.msg('Context', 0, 'create', ctx=self, name=self.name)
 
         self.tweaks = p.tweaks.copy() if p else {}
         self.tweaks.update(tweaks)
@@ -55,11 +55,11 @@ class Context(ContextBase):
             self.set(key, Node(self, key, v))
 
     def __enter__(self, *a):
-        Monitor.msg('Context', 1, 'enter', ctx=self)
+        Monitor.msg('Context', 1, 'enter', ctx=self, name=self.name)
         self._contexts.append(self)
         
     def __exit__(self, *a):
-        Monitor.msg('Context', -1, 'exit', ctx=self)
+        Monitor.msg('Context', -1, 'exit', ctx=self, name=self.name)
         c = self._contexts.pop()
         assert c == self
       

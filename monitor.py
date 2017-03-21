@@ -25,13 +25,13 @@ class Monitor(object):
             if k in kw:
                 v = kw.pop(k)
                 strs.append('%s: %s' % (k, f(v)))
+        addStr('key',     lambda v: self.keyStr(v))
         addStr('path',    lambda v: strForm(v, 80))
         addStr('value',   lambda v: strForm(v, 40))
         addStr('url',     lambda v: strForm(v, 80))
         addStr('ctx',     lambda v: self.ctxStr(v))
         addStr('metaobj', lambda v: v.path())
         addStr('obj',     lambda v: v.meta.path())
-        addStr('key',     lambda v: self.keyStr(v))
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)
@@ -94,15 +94,25 @@ class ProfileMonitor(Monitor):
         
     def message(self, sys, depthInc, action, **kw):
         if depthInc == 1:
-            v = [kw, time.clock(), 0]
+            v = [kw, time.time(), 0]
             self.stack.append(v)
-            
         if depthInc == -1:
+            keys = [ key for key in kw.keys() if key != 'value' ]
+            kw1 = [ kw[v] for v in keys ]
+            kw2 = [ self.stack[-1][0][v] for v in keys ]
+            if kw1 != kw2:
+                print 'Huh? Unmatched monitor messages'
+                print kw
+                print self.stack[-1]
+                assert False
+                
             kw, start, tSub = self.stack.pop()
-            t = time.clock() - start
-            tFn = t - tSub
+
+            end = time.time()
+            t = end - start               # total time in this block
+            tFn = t - tSub                # time in block - time in sub-blocks
             if self.stack:
-                self.stack[-1][-1] += t
+                self.stack[-1][-1] += t   # remove my total time from parent block
             
             self.result.append((tFn, t, sys, kw))
              
@@ -114,19 +124,24 @@ class ProfileMonitor(Monitor):
     def displaySum(self):
         if not self.result:
             displayMarkdown('No profile info was recorded.')
+        if self.stack:
+            print 'Stuff still on stack:', self.stack
+            assert False
         n = {}
         cumT = {}
         cumTCalc = {}
         tScale = 1e6
         for tFn, t, sys, kw in self.result:
-            if 'path'in kw:
+            if 'path' in kw:
                 fn = kw.get('path', '//').split('/')[2]
+            elif 'name' in kw:
+                fn = kw['name']
             else:
                 fn = kw.get('key', (None, ''))[1]
             key = (sys, fn)
-            cumT[key] = cumT.get(key, 0) + t * tScale
+            cumT[key]     = cumT.get(key, 0) + t * tScale
             cumTCalc[key] = cumTCalc.get(key, 0) + tFn * tScale
-            n[key] = n.get(key, 0) + 1
+            n[key]        = n.get(key, 0) + 1
         res = []
         def f(d):
             return format(int(d), ',d')
@@ -141,7 +156,8 @@ class ProfileMonitor(Monitor):
                      }
             res.append(line)
         res = sorted(res, key=lambda d: -d['key'])
-        txt = """Profile by nodes.
+        txt = """
+### Profile by nodes.
 * times are in microseconds
 * cumT is total time spent in funtion
 * calcT is time spent in function, but not in a child node"""
