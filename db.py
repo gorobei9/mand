@@ -73,7 +73,7 @@ class ObjectDb(_ObjectDbBase):
         self.name = 'O' + self.dbDriver.name
 
         # should fail fast if we are ro and db not set up...
-        self.getObj(_tr.RootClock, 'Main')
+        #self.getObj(_tr.RootClock, 'Main')
         self.cosmicAll = self.getObj(_tr.CosmicAll, 'TheCosmicAll')
 
     def isRO(self):

@@ -25,9 +25,9 @@ class Workbook(Entity):
         ret = {}
         for e in evs:
             ibb = e._itemsByBookByTicket() # { book: { ticket: { item: q }}}
-            items = ibb.get(self, {})      # { ticket: (item: q } )}
+            items = ibb.get(self, {})      # { ticket: { item: q } }
             merge(ret, items)
-        return self.items().keys()
+        return ret.keys()
   
     @node
     def refData(self):

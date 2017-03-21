@@ -16,10 +16,10 @@ class Node(object):
         return '<%s@%x/%s in %s>' % (key[0].__class__.__name__, id(key[0]), key[1], ctx.name)
 
     def find(self, fn):
-        ret = []
+        ret = set()
         def _find(node):
             if fn(node):
-                ret.append(node)
+                ret.add(node)
             else:
                 for i in node.inputs:
                     _find(i)

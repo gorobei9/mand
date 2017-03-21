@@ -44,6 +44,7 @@ class Portfolio(RefData):
         ret = {}
         for c in self.children():
             merge(ret, c.items())
+        self.books() # force a consistency check.
         return ret
 
     @node
@@ -51,6 +52,7 @@ class Portfolio(RefData):
         ret = set()
         for c in self.children():
             ret.update(c.tickets())
+        self.books() # force a consistency check.
         return list(ret)
     
     def prn(self, depth=0):
