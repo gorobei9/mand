@@ -97,20 +97,27 @@ class ProfileMonitor(Monitor):
         self.stack = []
         self.result = []
         self.mode = mode
+        self.active = {}
         
     def message(self, sys, depthInc, action, **kw):
         if depthInc == 1:
-            v = [kw, time.time(), 0]
+            key = self.key(sys, kw)
+            v = [key, time.time(), 0]
             self.stack.append(v)
+            self.active[key] = self.active.get(key, 0) + 1
         if depthInc == -1:
-            kw, start, tSub = self.stack.pop()
+            key, start, tSub = self.stack.pop()
+            self.active[key] = self.active[key] - 1
             end = time.time()
             t = end - start               # total time in this block
             tFn = t - tSub                # time in block - time in sub-blocks
             if self.stack:
                 self.stack[-1][-1] += t   # remove my total time from parent block
             
-            self.result.append((tFn, t, sys, kw))
+            if self.active[key] != 0:
+                #print 'Recursive profile entry:', key, self.active[key]
+                t = 0                     # the cum time will be given to the caller
+            self.result.append((tFn, t, key))
              
     def dumpRaw(self):
         for tFn, t, sys, kw in self.result:
@@ -123,7 +130,7 @@ class ProfileMonitor(Monitor):
         elif 'name' in kw:
             fn = kw['name']
         else:
-            fn = kw.get('key', (None, ''))[1]
+            fn = kw.get('key', (None, ''))[1] # key is (obj, fn, ...)
         return (sys, fn)
         
     def displaySum(self, check=True):
@@ -136,8 +143,7 @@ class ProfileMonitor(Monitor):
         cumT = {}
         cumTCalc = {}
         tScale = 1e6
-        for tFn, t, sys, kw in self.result:
-            key = self.key(sys, kw)
+        for tFn, t, key in self.result:
             cumT[key]     = cumT.get(key, 0) + t * tScale
             cumTCalc[key] = cumTCalc.get(key, 0) + tFn * tScale
             n[key]        = n.get(key, 0) + 1
