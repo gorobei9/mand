@@ -12,9 +12,16 @@ class DependencyManager(object):
         if len(self.stack) > 1:
             output = self.stack[-2]
             input = self.stack[-1]
-            output.inputs.add(input)
-            input.outputs.add(output)
+            self.addDep(input, output)
             
+    def addDep(self, input, output):
+        output.inputs.add(input)
+        input.outputs.add(output)
+
+        for k, v in input.footnotes.items():
+            for info in v.infos:
+                addFootnote(text=k, info=info, node=output)
+                        
     def push(self, node):
         self.stack.append(node)
         
@@ -27,11 +34,50 @@ def setDependencyManager(dm):
     global _dm
     _dm = dm
 
+class Footnote(object):
+    def __init__(self, text):
+        self.text = text
+        self.infos = set()
+    def addInfo(self, info):
+        if info is not None:
+            self.infos.add(info)
+    def __repr__(self):
+        if self.infos:
+            return '%s: %s' % (self.text, ', '.join(sorted(self.infos)))
+        else:
+            return self.txt
+        
+def addFootnote(text=None,
+                info=None,
+                node=None):
+    key = text
+    if node is None:
+        node = _getCurrentNode()
+    if key in node.footnotes:
+        fn = node.footnotes[key]
+    else:
+        fn = Footnote(text)
+        node.footnotes[key] = fn
+    fn.addInfo(info)
+                 
+def _getCurrentNode():
+    return _dm.stack[-1]
+
+def getNode(bm):
+    obj = bm.im_self
+    if obj._isCosmic:
+        ctx = Context._root()
+    else:
+        ctx = Context.current()
+    node = ctx.getBM(bm)
+    return node
+
 def find(bm, fn):
-    # XXX - sort this out
-    c = Context.current()
     v = bm()
-    n = c.getBM(bm)
+    n = getNode(bm)
+    # XXX - sort this out
+    #c = Context.current()
+    #n = c.getBM(bm)
     return n.find(fn)
     
 def getValue(f, fName, a, k):

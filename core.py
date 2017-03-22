@@ -15,7 +15,7 @@ from guid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta
 from dbo import DBOMetaClass, _DBO
 from obj import Entity, Event
-from graph import node, find
+from graph import node, find, getNode, addFootnote
 from cosmic_all import CosmicAll
 from root_clock import RootClock
 from clock import Clock, ClockEvent

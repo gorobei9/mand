@@ -11,8 +11,14 @@ class Monitor(object):
 
     def __exit__(self, *a):
         self.monitors.pop()
-        self.onExit()
+        if a:
+            self.onExitErr()
+        else:
+            self.onExit()
 
+    def onExitErr(self):
+        self.onExit()
+        
     def keyStr(self, key):
         return '%s@%x/%s' % (key[0].__class__.__name__, id(key[0]), key[1])
 
@@ -97,17 +103,7 @@ class ProfileMonitor(Monitor):
             v = [kw, time.time(), 0]
             self.stack.append(v)
         if depthInc == -1:
-            keys = [ key for key in kw.keys() if key != 'value' ]
-            kw1 = [ kw[v] for v in keys ]
-            kw2 = [ self.stack[-1][0][v] for v in keys ]
-            if kw1 != kw2:
-                print 'Huh? Unmatched monitor messages'
-                print kw
-                print self.stack[-1]
-                assert False
-                
             kw, start, tSub = self.stack.pop()
-
             end = time.time()
             t = end - start               # total time in this block
             tFn = t - tSub                # time in block - time in sub-blocks
@@ -121,12 +117,12 @@ class ProfileMonitor(Monitor):
             key = self.kwToStr(kw)
             print '%8.4f %8.4f %-16s: %s' % (tFn, t, sys, key)
             
-    def displaySum(self):
+    def displaySum(self, check=True):
+        if check and self.stack:
+            print 'Monitor: Stuff still on stack:', self.stack
+            assert False
         if not self.result:
             displayMarkdown('No profile info was recorded.')
-        if self.stack:
-            print 'Stuff still on stack:', self.stack
-            assert False
         n = {}
         cumT = {}
         cumTCalc = {}
@@ -163,13 +159,16 @@ class ProfileMonitor(Monitor):
 * calcT is time spent in function, but not in a child node"""
         displayMarkdown(txt)
         displayListOfDicts(res, names=['fn', 'n', 'cumT', 'calcT', 'cumT/call', 'sys'])
+
+    def onExitErr(self):
+        self.onExit(check=False)
         
-    def onExit(self):
+    def onExit(self, check=True):
         mode = self.mode
         if mode is None:
             self.dumpRaw()
         elif mode == 'sum':
-            self.displaySum()
+            self.displaySum(check=check)
         else:
             assert False, 'unknown profiler mode: %s' % mode
             

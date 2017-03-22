@@ -8,8 +8,9 @@ class Node(object):
         self.key = key
         self.tweakPoint = tweakPoint # XXX - fix this mess
         self.inputs = set()
-        self.outputs = set() # hardly pushing its weight: only used by _invalidate
-
+        self.outputs = set() # hardly pulling its weight: only used by _invalidate
+        self.footnotes = {}
+        
     def __repr__(self):
         key = self.key
         ctx = self.ctx

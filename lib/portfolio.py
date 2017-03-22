@@ -1,5 +1,6 @@
 
 from mand.core import node, _tr, merge
+from mand.core import addFootnote
 from mand.lib.refdata import RefDataUpdateEvent, RefData
             
 class PortfolioUpdateEvent(RefDataUpdateEvent):
@@ -35,7 +36,7 @@ class Portfolio(RefData):
         for c in self.children():
             for b in c.books():
                 if b in books:
-                    print 'LogMessage: Oops, book appears multiple times'
+                    addFootnote(text='Book appears multiple times', info=b.meta.path())
                 books.add(b)
         return list(books)
 
