@@ -1,6 +1,7 @@
 
 import datetime
 from mand.core import _tr, node, Entity
+from mand.core import addFootnote
 from mand.lib.extrefdata import ExternalRefData, dataField
 from mand.lib.workflow import Workbook, WorkItemOpenEvent, WorkItem
 from mand.lib.portfolio import Portfolio
@@ -76,6 +77,7 @@ class ForwardCashflow(Instrument):
         # XXX - would really get the currency discount curve here, and discount according to 
         # current time/settlement time
         # XXX - and do a conversion to our native currency
+        addFootnote(text='Inadequate cash discounting model used')
         return 1
     
     @node

@@ -19,8 +19,7 @@ class DependencyManager(object):
         input.outputs.add(output)
 
         for k, v in input.footnotes.items():
-            for info in v.infos:
-                addFootnote(text=k, info=info, node=output)
+            addFootnote(text=k, infos=v.infos, node=output)
                         
     def push(self, node):
         self.stack.append(node)
@@ -39,26 +38,31 @@ class Footnote(object):
         self.text = text
         self.infos = set()
     def addInfo(self, info):
-        if info is not None:
-            self.infos.add(info)
+        self.infos.update(info)
     def __repr__(self):
         if self.infos:
             return '%s: %s' % (self.text, ', '.join(sorted(self.infos)))
         else:
-            return self.txt
+            return self.text
         
 def addFootnote(text=None,
                 info=None,
+                infos=None,
                 node=None):
     key = text
     if node is None:
         node = _getCurrentNode()
+        
     if key in node.footnotes:
         fn = node.footnotes[key]
     else:
         fn = Footnote(text)
         node.footnotes[key] = fn
-    fn.addInfo(info)
+        
+    if info:
+        fn.addInfo([info])
+    if infos:
+        fn.addInfo(infos)
                  
 def _getCurrentNode():
     return _dm.stack[-1]
