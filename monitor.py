@@ -116,7 +116,16 @@ class ProfileMonitor(Monitor):
         for tFn, t, sys, kw in self.result:
             key = self.kwToStr(kw)
             print '%8.4f %8.4f %-16s: %s' % (tFn, t, sys, key)
-            
+
+    def key(self, sys, kw):
+        if 'path' in kw:
+            fn = kw['path'].split('/')[2]
+        elif 'name' in kw:
+            fn = kw['name']
+        else:
+            fn = kw.get('key', (None, ''))[1]
+        return (sys, fn)
+        
     def displaySum(self, check=True):
         if check and self.stack:
             print 'Monitor: Stuff still on stack:', self.stack
@@ -128,13 +137,7 @@ class ProfileMonitor(Monitor):
         cumTCalc = {}
         tScale = 1e6
         for tFn, t, sys, kw in self.result:
-            if 'path' in kw:
-                fn = kw.get('path', '//').split('/')[2]
-            elif 'name' in kw:
-                fn = kw['name']
-            else:
-                fn = kw.get('key', (None, ''))[1]
-            key = (sys, fn)
+            key = self.key(sys, kw)
             cumT[key]     = cumT.get(key, 0) + t * tScale
             cumTCalc[key] = cumTCalc.get(key, 0) + tFn * tScale
             n[key]        = n.get(key, 0) + 1
