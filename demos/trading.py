@@ -51,7 +51,7 @@ class MarketInterface(Entity):
     def source(self):
         return self.getObj(_tr.MarketDataSource, '%s.%s' % (self.sourceName(), self.meta.name()))
     
-    @node
+    @node(tweakable=True)
     def spot(self):
         return self.source().last()
                            
