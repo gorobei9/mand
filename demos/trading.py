@@ -1,7 +1,8 @@
 
 import datetime
-from mand.core import _tr, node, Entity, Timestamp
+from mand.core import _tr, node, Entity, Timestamp, Context, find, getNode
 from mand.core import addFootnote
+from mand.core import displayDict, displayMarkdown, displayListOfDicts, displayHeader
 from mand.lib.extrefdata import ExternalRefData, dataField
 from mand.lib.workflow import Workbook, WorkItemOpenEvent, WorkItem
 from mand.lib.portfolio import Portfolio
@@ -273,3 +274,105 @@ def bookSomeTrades(pWorld):
         ts6 = Timestamp()
         
         return [ ts0, ts1, ts2, ts3, ts4, ts5, eod, ts6 ]
+
+
+class PnLExplainReport(Entity):
+    
+    @node(stored=True)
+    def valuable(self):
+        return None
+    
+    @node(stored=True)
+    def ts1(self):
+        return None
+    
+    @node(stored=True)
+    def ts2(self):
+        return None
+
+    @node
+    def clocks(self):
+        valuable = self.valuable()
+        ts1 = self.ts1()
+        ts2 = self.ts2()
+        clock = valuable.getObj(_tr.RootClock, 'Main')
+    
+        def clks(ts):
+            def fn(node):
+                obj = node.key[0]
+                m = node.key[1].split(':')[-1]
+                if isinstance(obj, _tr.Clock) and m == 'cutoffs':
+                    return True
+            with Context({clock.cutoffs: ts}, 'Clocks'):
+                nodes = find(valuable.NPV, fn)
+                return dict( [ (node.tweakPoint, node) for node in nodes ] )
+    
+        allNodes = clks(ts1)
+        allNodes.update(clks(ts2))
+        return allNodes.values() 
+        
+    @node
+    def data(self):
+        valuable = self.valuable()
+        ts1 = self.ts1()
+        ts2 = self.ts2()
+        clock = valuable.getObj(_tr.RootClock, 'Main')
+    
+        nodes = self.clocks()
+    
+        # IRL, we'd sort these according to some business req...
+        # And our clocks might be arranged in an N-level tree...
+        nodes = sorted(nodes, key = lambda node: node.key[0].meta.name())
+    
+        data = []
+        curr = [0]
+        def add(title, npv):
+            pnl = npv - curr[0]
+            curr[0] = npv
+            data.append( {'Activity': title, 'PnL': pnl } )
+
+        with Context({clock.cutoffs: ts1}, 'Start'):
+            curr = [ valuable.NPV() ] # Starting balance
+    
+        tweaks = {}
+        for n in nodes:
+            tweaks[n.tweakPoint] = ts1
+        with Context(tweaks, name='Start breaks'):
+            start = valuable.NPV()
+            add('Starting balance breaks', start)
+
+        tsAmend = Timestamp(t=ts2.transactionTime, v=ts1.validTime)
+        # XXX - modifying tweaks in place is a bit evil
+        # This is only safe because I know Context() effectively copies, so this works
+        # for now.
+        for n in nodes:
+            tweaks[n.tweakPoint] = tsAmend
+            name = n.key[0].meta.name()
+            with Context(tweaks, name='Amend %s' % name):
+                add('prior day amends: %s' % name, valuable.NPV())
+        for n in nodes:
+            tweaks[n.tweakPoint] = ts2
+            name = n.key[0].meta.name()
+            with Context(tweaks, name='Activity %s' % name):
+                add('activity: %s' % name, valuable.NPV())
+    
+        with Context({clock.cutoffs: ts2}, name='End'):
+            end = valuable.NPV()
+            add('Ending balance breaks', end)
+
+        title = 'PnL explain for %s: %s' % (valuable.meta.name(), end-start)
+        return data, title
+
+    def run(self):
+        data, title = self.data()
+        node = getNode(self.data)
+        footnotes = node.footnotes.values()
+        displayHeader('%s' % title)
+        if footnotes:
+            displayMarkdown('**Caveat: this report encountered problems. See footnotes at bottom.**')
+        displayListOfDicts(data, names=['Activity', 'PnL'] )
+        if footnotes:
+            displayMarkdown('## Footnotes:')
+            txt = '\n'.join( [ '1. %s' % f for f in footnotes])
+            displayMarkdown(txt)
+            
