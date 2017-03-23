@@ -13,14 +13,16 @@ class DependencyManager(object):
             output = self.stack[-2]
             input = self.stack[-1]
             self.addDep(input, output)
+            self.addFootnotes(input, output)
             
+    def addFootnotes(self, input, output):
+        for k, v in input.footnotes.items():
+            addFootnote(text=k, infos=v.infos, node=output)
+                        
     def addDep(self, input, output):
         output.inputs.add(input)
         input.outputs.add(output)
 
-        for k, v in input.footnotes.items():
-            addFootnote(text=k, infos=v.infos, node=output)
-                        
     def push(self, node):
         self.stack.append(node)
         
@@ -140,7 +142,7 @@ def node(*a, **k):
     if k:
         def g(*aa, **kk):
             for kw in k:
-                assert kw in ('stored',)
+                assert kw in ('stored', 'tweakable')
             f = aa[0]
             info = k.copy()
             return makeFn(f, f.func_name, info=info)

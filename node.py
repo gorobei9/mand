@@ -2,15 +2,22 @@
 from noval import _noVal
 
 class Node(object):
-    def __init__(self, ctx, key, value, tweakPoint=None):
+    def __init__(self, ctx, key, value, tweakPoint=None, canTweak=False):
         self.ctx = ctx
         self.value = value
         self.key = key
+        self.canTweak = canTweak
         self.tweakPoint = tweakPoint # XXX - fix this mess
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
-        
+
+    def object(self):
+        return self.key[0]
+
+    def methodId(self):
+        return self.key[1]
+    
     def __repr__(self):
         key = self.key
         ctx = self.ctx

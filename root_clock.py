@@ -9,7 +9,7 @@ class RootClock(_DBO):
     def cosmicAll(self):
         return CosmicAll.get('TheCosmicAll', db=self.meta.db)
     
-    @node
+    @node(tweakable=True)
     def cutoffs(self):
         self.cosmicAll().dbState()
         return None

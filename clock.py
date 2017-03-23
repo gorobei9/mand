@@ -12,7 +12,7 @@ class Clock(Entity):
             return evs[-1].parent()
         return RootClock.get('Main', db=self.meta.db)
     
-    @node 
+    @node(tweakable=True)
     def cutoffs(self):
         return self.parent().cutoffs()
     

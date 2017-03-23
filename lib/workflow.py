@@ -15,7 +15,7 @@ class Workbook(Entity):
             ibb = e._itemsByBookByTicket() # { book: { ticket: { item: q }}}
             items = ibb.get(self, {})      # { ticket: (item: q } )}
             for v in items.values():
-                merge(ret,v)
+                merge(ret, v)
         return ret
 
     @node    
