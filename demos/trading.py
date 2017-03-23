@@ -1,6 +1,6 @@
 
 import datetime
-from mand.core import _tr, node, Entity
+from mand.core import _tr, node, Entity, Timestamp
 from mand.core import addFootnote
 from mand.lib.extrefdata import ExternalRefData, dataField
 from mand.lib.workflow import Workbook, WorkItemOpenEvent, WorkItem
@@ -133,3 +133,143 @@ class TradeOpenEvent(WorkItemOpenEvent):
                ] 
 
 _tr.add(TradeOpenEvent)
+
+def makeWorld():
+    def makeTree(names):
+        ret = []
+        for name in names:
+            subs = [ TradingBook(name+str(i)) for i in range(10) ]
+            p = TradingPortfolio(name).write()
+            p.setChildren(subs)
+            ret.append(p)
+        return ret
+
+    pAll = TradingPortfolio('TopOfTheHouse').write()
+    subs = makeTree(['Eq-Prop', 'Eq-Inst', 'FX', 'Rates', 'Credit', 'Delta1', 'Loans', 'Commod', 'ETFs', 'Mtge'])
+    pAll.setChildren(subs)
+
+    bExt  = _tr.TradingBook('Customer1')
+    bExt2 = _tr.TradingBook('Customer2')
+
+    pWorld = TradingPortfolio('TheWorld').write()
+
+    pWorld.setChildren([pAll, bExt, bExt2])
+
+    print 'makeWorld, TopOfTheHouse is:', pAll
+    print '    # books:', len(pAll.books())
+    print '    # children:', len(pAll.children())
+    
+    return pWorld
+
+def bookSomeTrades(pWorld):
+
+    pAll, bExt, bExt2 = pWorld.children()
+
+    with pAll.meta.db:
+
+        s1_ibm  = MarketDataSource('source1.IBM')
+        s1_goog = MarketDataSource('source1.GOOG')
+
+        s1_ibm.update(last=175.61)
+        s1_goog.update(last=852.12)
+
+        ibm  = MarketInterface('IBM').write()
+        goog = MarketInterface('GOOG').write()
+        
+        p1 = pAll.children()[0]
+        p2 = pAll.children()[1]
+        p3 = pAll.children()[2]
+        p4 = pAll.children()[3]
+
+        b1 = p1.children()[0]
+        b2 = p2.children()[0]
+        b3 = p3.children()[0]
+        b4 = p4.children()[0]
+
+        TradeOpenEvent = _tr.TradeOpenEvent
+        cf1 = _tr.ForwardCashflow()
+        ins1 = _tr.Equity()
+        ins2 = _tr.Equity(assetName='GOOG.Eq.1')
+        
+        ts0 = Timestamp()
+
+        for i in range(1000):
+            ev0 = TradeOpenEvent(action='Buy',
+                                 item=ins2,
+                                 quantity=1,
+                                 premium=cf1,
+                                 unitPrice=852 + i/100.,
+                                 book1=b3,
+                                 book2=bExt2).write()
+            
+        for i in range(10):
+            ev0 = TradeOpenEvent(action='Buy',
+                                 item=ins2,
+                                 quantity=1,
+                                 premium=cf1,
+                                 unitPrice=852 + i/100.,
+                                 book1=b4,
+                                 book2=bExt2).write()
+                
+                
+        ts1 = Timestamp()
+        
+        ev1 = TradeOpenEvent(action='Buy',
+                             item=ins1,
+                             quantity=100,
+                             premium=cf1,
+                             unitPrice=175.65,
+                             book1=b1,
+                             book2=bExt).write()
+        
+        ts2 = Timestamp()
+        
+        s1_ibm.update(last=175.64)
+        
+        ts3 = Timestamp()
+        
+        ev2 = TradeOpenEvent(action='Buy',
+                             item=ins2,
+                             quantity=300,
+                             premium=cf1,
+                             unitPrice=852.12,
+                             book1=b2,
+                             book2=bExt).write()
+        
+        ev3 = TradeOpenEvent(action='Sell',
+                             item=ins1,
+                             quantity=100,
+                             premium=cf1,
+                             unitPrice=175.85,
+                             book1=b2,
+                             book2=bExt2).write()
+        
+        ts4 = Timestamp()
+        
+        s1_ibm.update(last=175.70)
+        s1_goog.update(last=852.11)
+        
+        ts5 = Timestamp()
+        
+        s1_ibm.update(last=175.68)
+        s1_goog.update(last=852.13)
+        
+        eod = Timestamp()
+        
+        ev4 = TradeOpenEvent(action='Buy',
+                             item=ins1,
+                             quantity=100,
+                             premium=cf1,
+                             unitPrice=175.69,
+                             book1=b1,
+                             book2=bExt,
+                             amends=ev1,
+                             message='Sorry, the broker says you actually paid 69. signed: the middle office'
+                             ).write(validTime=ev1.meta._timestamp.validTime)
+        
+        s1_ibm.update(last=177.68)
+        s1_goog.update(last=856.13)
+        
+        ts6 = Timestamp()
+        
+        return [ ts0, ts1, ts2, ts3, ts4, ts5, eod, ts6 ]

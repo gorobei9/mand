@@ -144,8 +144,7 @@ def node(*a, **k):
             for kw in k:
                 assert kw in ('stored', 'tweakable')
             f = aa[0]
-            info = k.copy()
-            return makeFn(f, f.func_name, info=info)
+            return makeFn(f, f.func_name, info=k)
         return g
     
     f = a[0]

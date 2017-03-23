@@ -63,6 +63,8 @@ class Entity(_DBO):
     def str(self):
         return '<%s, isNew=%s>' % (self.meta.path(), self.meta.isNew)
 
+    def __repr__(self):
+        return '<Entity:%s>' % self.meta.path()
 
 class Event(_DBO):
     _instanceMetaclass = EventMeta
