@@ -2,11 +2,11 @@
 from noval import _noVal
 
 class Node(object):
-    def __init__(self, ctx, key, value, tweakPoint=None, canTweak=False):
+    def __init__(self, ctx, key, value, tweakPoint=None, tweakable=False):
         self.ctx = ctx
         self.value = value
         self.key = key
-        self.canTweak = canTweak
+        self.tweakable = tweakable
         self.tweakPoint = tweakPoint # XXX - fix this mess
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate

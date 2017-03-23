@@ -11,13 +11,13 @@ class ContextBase(object):
         return node
     
     def getNode(self, key, boundMethod):
-        canTweak = boundMethod.nodeInfo.get('tweakable', False)
+        tweakable = boundMethod.nodeInfo.get('tweakable', False)
         v = self.get(key)
         if v:
             return v
         else:
             tweakPoint = boundMethod
-            node = Node(self, key, value=_noVal, tweakPoint=tweakPoint, canTweak=canTweak)
+            node = Node(self, key, value=_noVal, tweakPoint=tweakPoint, tweakable=tweakable)
             self.cache[key] = node
             return node
             
@@ -55,7 +55,7 @@ class Context(ContextBase):
             node = self.getBM(k)
             key = node.key
             node.value = v
-            if not node.canTweak:
+            if not node.tweakable:
                 raise RuntimeError('trying to tweak un-tweakable %s' % node)
             self.set(key, node)
 
