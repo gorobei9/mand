@@ -1,6 +1,6 @@
 
 from printutils import strForm
-from utils import displayListOfDicts, displayMarkdown
+from utils import displayListOfDicts, displayMarkdown, displayDict, displayHeader
 import time
 
 class Monitor(object):
@@ -8,7 +8,8 @@ class Monitor(object):
 
     def __enter__(self):
         self.monitors.append(self)
-
+        self.onEntry()
+        
     def __exit__(self, *a):
         self.monitors.pop()
         if a:
@@ -16,6 +17,12 @@ class Monitor(object):
         else:
             self.onExit()
 
+    def onEntry(self):
+        pass
+    
+    def onExit(self):
+        pass
+    
     def onExitErr(self):
         self.onExit()
         
@@ -46,9 +53,6 @@ class Monitor(object):
     def message(self, *a, **k):
         print 'Monitor(baseclass).msg:', a, k
 
-    def onExit(self):
-        pass
-    
     @classmethod
     def msg(cls, *a, **k):
         for monitor in cls.monitors:
@@ -82,18 +86,23 @@ class SummaryMonitor(Monitor):
     def __init__(self):
         self.counts = {}
         
+    def onEntry(self):
+        self.start = time.time()
+    
     def message(self, sys, depthInc, action, **kw):
         if action in ('begin', 'create'):
             self.counts[sys] = self.counts.get(sys, 0) + 1
 
     def onExit(self):
-        print 'Compute activity:'
-        for i in sorted(self.counts.items()):
-            print '  %20s: %5d' % i
+        elapsed = time.time() - self.start
+        displayHeader('Compute activity summary (%.2f seconds of wall clock time)' % elapsed)
+        displayDict(self.counts)
+        #for i in sorted(self.counts.items()):
+        #    print '  %20s: %5d' % i
         
 class ProfileMonitor(Monitor):
 
-    def __init__(self, mode=None):
+    def __init__(self, mode='sum'):
         self.stack = []
         self.result = []
         self.mode = mode
@@ -120,9 +129,9 @@ class ProfileMonitor(Monitor):
             self.result.append((tFn, t, key))
              
     def dumpRaw(self):
-        for tFn, t, sys, kw in self.result:
+        for tFn, t, kw in self.result:
             key = self.kwToStr(kw)
-            print '%8.4f %8.4f %-16s: %s' % (tFn, t, sys, key)
+            print '%8.4f %8.4f: %s' % (tFn, t, key)
 
     def key(self, sys, kw):
         if 'path' in kw:

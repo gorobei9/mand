@@ -2,16 +2,22 @@
 from noval import _noVal
 
 class Node(object):
-    def __init__(self, ctx, key, value, tweakPoint=None, tweakable=False):
+    def __init__(self, ctx, key, value, tweakPoint=None, tweakable=False, onCalced=None):
         self.ctx = ctx
         self.value = value
         self.key = key
+        self.tweaked = False
         self.tweakable = tweakable
         self.tweakPoint = tweakPoint # XXX - fix this mess
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
-
+        self.onCalced = onCalced
+        
+    def calced(self):
+        if self.onCalced:
+            self.onCalced(self)
+            
     def object(self):
         return self.key[0]
 
@@ -37,10 +43,10 @@ class Node(object):
     
     def printInputGraph(self, depth=0):
         if self.value is _noVal:
-            print '  '*depth, self, '*not evaluated*'
+            print '   '*depth, self, '*not evaluated*'
         else:
-            print '  '*depth, self
-        for i in self.inputs:
+            print'%s%s, nIn=%s' % ('   '*depth, self, len(self.inputs))
+        for i in sorted(self.inputs, key=lambda n: [ n.object().meta.path(), n.methodId() ]):
             i.printInputGraph(depth+1)
 
     def _invalidate(self):

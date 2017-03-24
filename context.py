@@ -10,12 +10,15 @@ class ContextBase(object):
         node = self.getNode(key, boundMethod=k)
         return node
     
+    def _getNode(self, key):
+        return self.get(key)
+    
     def getNode(self, key, boundMethod):
-        tweakable = boundMethod.nodeInfo.get('tweakable', False)
         v = self.get(key)
         if v:
             return v
         else:
+            tweakable = boundMethod.nodeInfo.get('tweakable', False)
             tweakPoint = boundMethod
             node = Node(self, key, value=_noVal, tweakPoint=tweakPoint, tweakable=tweakable)
             self.cache[key] = node
@@ -39,24 +42,27 @@ class RootContext(ContextBase):
 class Context(ContextBase):
     _contexts = [RootContext()]
     
-    def __init__(self, tweaks, name=None):
-        p = self.current()
+    def __init__(self, tweaks, name=None, parented=True):
+        p = self.current() if parented else None
 
         self.name = name if name else '%s' % id(name)
         if p:
             self.name = '%s:%s' % (p.name, self.name)
         Monitor.msg('Context', 0, 'create', ctx=self, name=self.name)
 
-        self.tweaks = p.tweaks.copy() if p else {}
-        self.tweaks.update(tweaks)
-        
+        allTweaks = p.tweaks.copy() if p else {}
+        allTweaks.update(tweaks)
+
+        self.tweaks = set()
         self.cache = {}
-        for k, v in self.tweaks.items():
+        for k, v in allTweaks.items():
             node = self.getBM(k)
             key = node.key
-            node.value = v
             if not node.tweakable:
                 raise RuntimeError('trying to tweak un-tweakable %s' % node)
+            node.value = v
+            node.tweaked = True
+            self.tweaks.add(node)
             self.set(key, node)
 
     def __enter__(self, *a):

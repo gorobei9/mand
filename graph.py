@@ -8,6 +8,8 @@ class DependencyManager(object):
     def __init__(self):
         self.stack = []
         
+    # Input management stuff...
+    
     def establishDep(self):
         if len(self.stack) > 1:
             output = self.stack[-2]
@@ -28,6 +30,11 @@ class DependencyManager(object):
         
     def pop(self):
         self.stack.pop()
+
+    # Context selection stuff...
+    
+    def getNode(self, ctx, key, bm):
+        return ctx.getNode(key, boundMethod=bm)
             
 _dm = DependencyManager()
 
@@ -98,7 +105,7 @@ def getValue(f, fName, a, k):
     else:
         ctx = Context.current()
     bm = getattr(obj, name)
-    node = ctx.getNode(key, boundMethod=bm)
+    node = _dm.getNode(ctx, key, bm)
 
     _dm.push(node)
 
@@ -115,6 +122,7 @@ def getValue(f, fName, a, k):
             return v
         Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctx)
         v = f(*a, **k)
+        node.calced()
         Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctx)
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)

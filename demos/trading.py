@@ -323,7 +323,17 @@ class PnLExplainReport(Entity):
         # IRL, we'd sort these according to some business req...
         # And our clocks might be arranged in an N-level tree...
         nodes = sorted(nodes, key = lambda node: node.key[0].meta.name())
-    
+
+        # NPV call counts:
+        #  2 - clocks
+        #  1 - start balance
+        #  1 - start breaks
+        #  3 - amend clocks
+        #  3 - activity clocks
+        #  1 - end breaks
+        # --------------------
+        # 11 TOTAL
+        
         data = []
         curr = [0]
         def add(title, npv):
