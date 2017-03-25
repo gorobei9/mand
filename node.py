@@ -3,10 +3,10 @@ from noval import _noVal
 
 class NodeKey(object):
     
-    def __init__(self, obj, fn, fullName, args):
+    def __init__(self, obj, bm, fullName, args):
         assert ':' in fullName
         self._key = (obj, fullName, args)
-        #self.fn = fn
+        self.bm = bm
 
     def object(self):
         return self._key[0]
@@ -25,10 +25,9 @@ class NodeKey(object):
     def fromBM(cls, bm):
         obj = bm.im_self
         nodeInfo = bm.nodeInfo
-        fn = 123
         fullName = nodeInfo['key']
         args = ()
-        return NodeKey(obj, fn, fullName, args)
+        return NodeKey(obj, bm, fullName, args)
         
 class Node(object):
     def __init__(self, ctx, key, value): # , tweakPoint=None, tweakable=False, onCalced=None):
@@ -40,10 +39,12 @@ class Node(object):
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
+        self.tweakPoint = key.bm
         
     def copy(self, newCtx):
         c = Node(newCtx, self.key, self.value)
         c.tweakable = self.tweakable
+        c.tweakPoint = self.tweakPoint
         return c
         
     def object(self):

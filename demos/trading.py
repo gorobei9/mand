@@ -322,7 +322,7 @@ class PnLExplainReport(Entity):
     
         # IRL, we'd sort these according to some business req...
         # And our clocks might be arranged in an N-level tree...
-        nodes = sorted(nodes, key = lambda node: node.key[0].meta.name())
+        nodes = sorted(nodes, key = lambda node: node.key.object().meta.name())
 
         # NPV call counts:
         #  2 - clocks

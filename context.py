@@ -23,7 +23,6 @@ class ContextBase(object):
         nodeInfo = bm.nodeInfo
         if nodeInfo.get('tweakable'):
             node.tweakable = True
-            node.tweakPoint = bm
         return node
         
     def set(self, nodeKey, node):
