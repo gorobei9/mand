@@ -27,7 +27,7 @@ class Monitor(object):
         self.onExit()
         
     def keyStr(self, key):
-        return '%s@%x/%s' % (key[0].__class__.__name__, id(key[0]), key[1])
+        return key.strForMonitor()
 
     def ctxStr(self, ctx):
         return ctx.name
@@ -40,11 +40,11 @@ class Monitor(object):
                 strs.append('%s: %s' % (k, f(v)))
         addStr('key',     lambda v: self.keyStr(v))
         addStr('path',    lambda v: strForm(v, 80))
-        addStr('value',   lambda v: strForm(v, 40))
         addStr('url',     lambda v: strForm(v, 80))
         addStr('ctx',     lambda v: self.ctxStr(v))
         addStr('metaobj', lambda v: v.path())
         addStr('obj',     lambda v: v.meta.path())
+        addStr('value',   lambda v: strForm(v, 40))
         if kw:
             strs.append('other: %s' % kw.keys())
         info = ', '.join(strs)
@@ -139,7 +139,8 @@ class ProfileMonitor(Monitor):
         elif 'name' in kw:
             fn = kw['name']
         else:
-            fn = kw.get('key', (None, ''))[1] # key is (obj, fn, ...)
+            k = kw.get('key')
+            fn = k.fullName()
         return (sys, fn)
         
     def displaySum(self, check=True):

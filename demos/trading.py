@@ -299,8 +299,8 @@ class PnLExplainReport(Entity):
     
         def clks(ts):
             def fn(node):
-                obj = node.key[0]
-                m = node.key[1].split(':')[-1]
+                obj = node.key.object()
+                m = node.key.fullName().split(':')[-1]
                 if isinstance(obj, _tr.Clock) and m == 'cutoffs':
                     return True
             with Context({clock.cutoffs: ts}, 'Clocks'):

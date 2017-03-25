@@ -1,34 +1,61 @@
 
 from noval import _noVal
 
+class NodeKey(object):
+    
+    def __init__(self, obj, fn, fullName, args):
+        assert ':' in fullName
+        self._key = (obj, fullName, args)
+        #self.fn = fn
+
+    def object(self):
+        return self._key[0]
+    
+    def fullName(self):
+        return self._key[1]
+    
+    def __repr__(self):
+        return '<NodeKey:%s.(%s) %s %s>' % (self._key + (self.fn,))
+
+    def strForMonitor(self):
+        key = self._key
+        return '%s@%x/%s:%s' % (key[0].__class__.__name__, id(key[0]), key[1], key[2])
+    
+    @classmethod
+    def fromBM(cls, bm):
+        obj = bm.im_self
+        nodeInfo = bm.nodeInfo
+        fn = 123
+        fullName = nodeInfo['key']
+        args = ()
+        return NodeKey(obj, fn, fullName, args)
+        
 class Node(object):
-    def __init__(self, ctx, key, value, tweakPoint=None, tweakable=False, onCalced=None):
+    def __init__(self, ctx, key, value): # , tweakPoint=None, tweakable=False, onCalced=None):
         self.ctx = ctx
         self.value = value
         self.key = key
         self.tweaked = False
-        self.tweakable = tweakable
-        self.tweakPoint = tweakPoint # XXX - fix this mess
+        self.tweakable = False
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
-        self.onCalced = onCalced
         
-    def calced(self):
-        if self.onCalced:
-            self.onCalced(self)
-            
+    def copy(self, newCtx):
+        c = Node(newCtx, self.key, self.value)
+        c.tweakable = self.tweakable
+        return c
+        
     def object(self):
-        return self.key[0]
+        return self.key.object()
 
     def methodId(self):
-        return self.key[1]
+        return self.key.fullName()
     
     def __repr__(self):
         key = self.key
         ctx = self.ctx
-        return '<%s.(%s) in %s>' % (key[0].meta.path(), key[1], ctx.name)
-        #return '<%s@%x/%s in %s>' % (key[0].__class__.__name__, id(key[0]), key[1], ctx.name)
+        return '<%s in %s>' % (key.strForMonitor(), ctx.name)
 
     def find(self, fn):
         ret = set()

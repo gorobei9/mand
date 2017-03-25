@@ -17,7 +17,7 @@ class CosmicAll(_DBO):
         return '<CosmicAll: %s>' % self.meta.name()
 
     def _wroteEvent(self):
-        node = Context._root().getBM(self.dbState)
+        node = Context._root().getFromBM(self.dbState)
         node._invalidate()
 
 _tr.add(CosmicAll)

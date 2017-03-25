@@ -2,7 +2,8 @@
 from context import Context
 from noval import _noVal
 from monitor import Monitor
-from node import Node
+from node import Node, NodeKey
+from footnote import addFootnote
 
 class DependencyManager(object):
     def __init__(self):
@@ -33,45 +34,16 @@ class DependencyManager(object):
 
     # Context selection stuff...
     
-    def getNode(self, ctx, key, bm):
-        return ctx.getNode(key, boundMethod=bm)
-            
+    def getNode(self, ctx, key):
+        node = ctx.get(key)
+        return node
+    
 _dm = DependencyManager()
 
 def setDependencyManager(dm):
     global _dm
     _dm = dm
 
-class Footnote(object):
-    def __init__(self, text):
-        self.text = text
-        self.infos = set()
-    def addInfo(self, info):
-        self.infos.update(info)
-    def __repr__(self):
-        if self.infos:
-            return '%s: %s' % (self.text, ', '.join(sorted(self.infos)))
-        else:
-            return self.text
-        
-def addFootnote(text=None,
-                info=None,
-                infos=None,
-                node=None):
-    key = text
-    if node is None:
-        node = _getCurrentNode()
-        
-    if key in node.footnotes:
-        fn = node.footnotes[key]
-    else:
-        fn = Footnote(text)
-        node.footnotes[key] = fn
-        
-    if info:
-        fn.addInfo([info])
-    if infos:
-        fn.addInfo(infos)
                  
 def _getCurrentNode():
     return _dm.stack[-1]
@@ -82,7 +54,7 @@ def getNode(bm):
         ctx = Context._root()
     else:
         ctx = Context.current()
-    node = ctx.getBM(bm)
+    node = ctx.getFromBM(bm)
     return node
 
 def find(bm, fn):
@@ -94,18 +66,18 @@ def find(bm, fn):
     return n.find(fn)
     
 def getValue(f, fName, a, k):
-    # XXX - this doesn't handle methods with args correctly
+    assert not k
+    
+    # XXX - this doesn't handle methods with kwargs correctly
     obj = a[0]
+    args = a[1:]
     name = f.func_name
 
-    key = (obj, fName)        # the full name of the function we call, possibly a super() method
-
-    if obj._isCosmic:
-        ctx = Context._root()
-    else:
-        ctx = Context.current()
-    bm = getattr(obj, name)
-    node = _dm.getNode(ctx, key, bm)
+    key = NodeKey(obj, f, fName, args)
+    
+    ctx = Context._root() if obj._isCosmic else Context.current()
+        
+    node = _dm.getNode(ctx, key)
 
     _dm.push(node)
 
@@ -122,7 +94,6 @@ def getValue(f, fName, a, k):
             return v
         Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctx)
         v = f(*a, **k)
-        node.calced()
         Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctx)
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
@@ -136,9 +107,11 @@ def getValue(f, fName, a, k):
         _dm.establishDep()
         _dm.pop()
 
-def makeFn(f, name, info={}):
+def makeFn(f, info={}):
+    name = f.func_name
     info = info.copy()
     info['name'] =  name
+    # Note: info['key'] is added by DBOMetaClass
     def fn(*a, **k):
         v = getValue(f, info['key'], a, k)
         return v
@@ -152,8 +125,8 @@ def node(*a, **k):
             for kw in k:
                 assert kw in ('stored', 'tweakable')
             f = aa[0]
-            return makeFn(f, f.func_name, info=k)
+            return makeFn(f, info=k)
         return g
     
     f = a[0]
-    return makeFn(f, f.func_name)
+    return makeFn(f)

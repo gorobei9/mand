@@ -1,34 +1,34 @@
 
 from noval import _noVal
 from monitor import Monitor
-from node import Node
+from node import Node, NodeKey
 
 class ContextBase(object):
 
-    def getBM(self, k):
-        key = (k.im_self, k.nodeInfo['key'])
-        node = self.getNode(key, boundMethod=k)
-        return node
-    
-    def _getNode(self, key):
-        return self.get(key)
-    
-    def getNode(self, key, boundMethod):
-        v = self.get(key)
+    def _get(self, nodeKey):
+        key = nodeKey._key
+        return self.cache.get(key)
+
+    def get(self, nodeKey):
+        v = self._get(nodeKey)
         if v:
             return v
-        else:
-            tweakable = boundMethod.nodeInfo.get('tweakable', False)
-            tweakPoint = boundMethod
-            node = Node(self, key, value=_noVal, tweakPoint=tweakPoint, tweakable=tweakable)
-            self.cache[key] = node
-            return node
-            
-    def get(self, key):
-        return self.cache.get(key)
+        node = Node(self, nodeKey, value=_noVal)
+        self.set(nodeKey, node)
+        return node
+
+    def getFromBM(self, bm):
+        key = NodeKey.fromBM(bm)
+        node = self.get(key)
+        nodeInfo = bm.nodeInfo
+        if nodeInfo.get('tweakable'):
+            node.tweakable = True
+            node.tweakPoint = bm
+        return node
         
-    def set(self, key, node):
-        Monitor.msg('Context', 0, 'set', ctx=self, key=key, value=node.value)
+    def set(self, nodeKey, node):
+        key = nodeKey._key
+        Monitor.msg('Context', 0, 'set', ctx=self, key=nodeKey, value=node.value)
         self.cache[key] = node
         return node
     
@@ -42,21 +42,24 @@ class RootContext(ContextBase):
 class Context(ContextBase):
     _contexts = [RootContext()]
     
-    def __init__(self, tweaks, name=None, parented=True):
-        p = self.current() if parented else None
+    def __init__(self, tweaks, name=None):
+        p = self.current()
 
         self.name = name if name else '%s' % id(name)
         if p:
             self.name = '%s:%s' % (p.name, self.name)
         Monitor.msg('Context', 0, 'create', ctx=self, name=self.name)
 
-        allTweaks = p.tweaks.copy() if p else {}
-        allTweaks.update(tweaks)
-
+        self.allTweaks = set()
         self.tweaks = set()
         self.cache = {}
-        for k, v in allTweaks.items():
-            node = self.getBM(k)
+        
+        for node in p.tweaks:
+            self.set(node.key, node.copy(self))
+            self.allTweaks.add(node)
+            
+        for k, v in tweaks.items():
+            node = self.getFromBM(k)
             key = node.key
             if not node.tweakable:
                 raise RuntimeError('trying to tweak un-tweakable %s' % node)
