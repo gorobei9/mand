@@ -33,6 +33,9 @@ class DependencyManager(object):
         self.stack.pop()
 
     # Context selection stuff...
+
+    def calculated(self, node):
+        pass
     
     def getNode(self, ctx, key, tweakable=False):
         ### XXX - fix
@@ -100,7 +103,7 @@ def getValue(f, info, a, k):
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
             obj.meta.setField(name, v)
         node.value = v
-
+        _dm.calculated(node)
         Monitor.msg('GetValue', -1, 'end', key=key, ctx=ctx, value=v)
         return v
 

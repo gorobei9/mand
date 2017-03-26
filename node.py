@@ -78,7 +78,7 @@ class Node(object):
     
     def printInputGraph(self, depth=0):
         if self.value is _noVal:
-            print '   '*depth, self, '*not evaluated*'
+            print '  '*depth, self, '*not evaluated*'
         else:
             print'%s%s, nIn=%s' % ('   '*depth, self, len(self.inputs))
         for i in sorted(self.inputs, key=lambda n: [ n.object().meta.path(), n.methodId() ]):

@@ -68,7 +68,8 @@ class Context(ContextBase):
     def __enter__(self, *a):
         Monitor.msg('Context', 1, 'enter', ctx=self, name=self.name)
         self._contexts.append(self)
-        
+        return self
+    
     def __exit__(self, *a):
         Monitor.msg('Context', -1, 'exit', ctx=self, name=self.name)
         c = self._contexts.pop()

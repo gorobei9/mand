@@ -10,7 +10,8 @@ class Clock(Entity):
         evs = self.activeEvents()
         if evs:
             return evs[-1].parent()
-        return RootClock.get('Main', db=self.meta.db)
+        return self.getObj(RootClock, 'Main')
+        #return RootClock.get('Main', db=self.meta.db)
     
     @node(tweakable=True)
     def cutoffs(self):

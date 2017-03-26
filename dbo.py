@@ -94,3 +94,6 @@ class _DBO(object):
             if n.get('stored'):
                 ret.append(n['name'])
         return set(ret)
+
+    def __repr__(self):
+        return '<Entity:%s>' % self.meta.path()
