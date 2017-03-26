@@ -317,9 +317,6 @@ class PnLExplainReport(Entity):
             ret[n.key._key] = n
         for n in cuts(ts2):
             ret[n.key._key] = n
-        print 'cutoffs:'
-        for k, v in ret.items():
-            print k, v
         return ret.values()
         
     @node
