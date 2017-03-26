@@ -391,7 +391,8 @@ class PnLExplainReport(Entity):
             displayMarkdown('**Caveat: this report encountered problems. See footnotes at bottom.**')
         displayListOfDicts(data, names=['Activity', 'PnL'] )
         if footnotes:
-            displayMarkdown('## Footnotes:')
-            txt = '\n'.join( [ '1. %s' % f for f in footnotes])
-            displayMarkdown(txt)
+            r = [ '## Footnotes:' ]
+            for f in footnotes:
+                r.append(f.markdown())
+            displayMarkdown('\n'.join(r))
             
