@@ -3,11 +3,14 @@ from noval import _noVal
 
 class NodeKey(object):
     
-    def __init__(self, obj, fn, fullName, args):
+    def __init__(self, obj, fn, fullName, args, tweakable):
         assert ':' in fullName
         self._key = (obj, fullName, args)
-        #self.bm = fn
+        self.tweakable = tweakable
          
+    def fArgs(self):
+        return (self.object(),) + self._key[2]
+    
     def object(self):
         return self._key[0]
     
@@ -29,27 +32,26 @@ class NodeKey(object):
         obj = bm.im_self
         nodeInfo = bm.nodeInfo
         fullName = nodeInfo['key']
+        tweakable = nodeInfo.get('tweakable', False)
         args = ()
-        return NodeKey(obj, bm, fullName, args)
+        return NodeKey(obj, bm, fullName, args, tweakable)
         
 class Node(object):
-    def __init__(self, ctx, key, value, tweakable=False):
+    def __init__(self, ctx, key, value):
         self.ctx = ctx
         self.value = value
         self.key = key
         self.tweaked = False
-        self.tweakable = tweakable
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
             
     def copy(self, newCtx):
         c = Node(newCtx, self.key, self.value)
-        c.tweakable = self.tweakable
         return c
 
     def tweak(self, v):
-        if not self.tweakable:
+        if not self.key.tweakable:
             raise RuntimeError('trying to tweak un-tweakable %s' % self)
         self.value = v
         self.tweaked = True
@@ -63,7 +65,7 @@ class Node(object):
     def __repr__(self):
         key = self.key
         ctx = self.ctx
-        return '<Node: %s in %s @%s T=%s>' % (key.strForMonitor(), ctx.name, id(self), self.tweakable)
+        return '<Node: %s in %s @%s T=%s>' % (key.strForMonitor(), ctx.name, id(self), self.key.tweakable)
 
     def find(self, fn):
         ret = set()

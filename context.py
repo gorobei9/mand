@@ -9,19 +9,18 @@ class ContextBase(object):
         key = nodeKey._key
         return self.cache.get(key)
 
-    def get(self, nodeKey, tweakable):
+    def get(self, nodeKey):
         v = self._get(nodeKey)
         if v:
             return v
-        node = Node(self, nodeKey, value=_noVal, tweakable=tweakable)
+        node = Node(self, nodeKey, value=_noVal)
         self.set(nodeKey, node)
         return node
 
     def getFromBM(self, bm): 
         nodeInfo = bm.nodeInfo
         key = NodeKey.fromBM(bm)
-        node = self.get(key, nodeInfo.get('tweakable'))
-        ### XXX - fix
+        node = self.get(key)
         return node
         
     def set(self, nodeKey, node):

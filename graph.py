@@ -37,9 +37,8 @@ class DependencyManager(object):
     def calculated(self, node):
         pass
     
-    def getNode(self, ctx, key, tweakable=False):
-        ### XXX - fix
-        node = ctx.get(key, tweakable=tweakable)
+    def getNode(self, ctx, key):
+        node = ctx.get(key)
         return node
     
 _dm = DependencyManager()
@@ -66,22 +65,10 @@ def find(bm, fn):
     n = getNode(bm)
     return n.find(fn)
     
-def getValue(f, info, a, k):
-    assert not k
-
-    fName = info['key']
-    tweakable = info.get('tweakable')
-    
-    # XXX - this doesn't handle methods with kwargs correctly
-    obj = a[0]
-    args = a[1:]
-    name = f.func_name
-
-    key = NodeKey(obj, f, fName, args)
-    
+def getValue(f, key):
+    obj = key.object()
     ctx = Context._root() if obj._isCosmic else Context.current()
-    
-    node = _dm.getNode(ctx, key, tweakable=tweakable)
+    node = _dm.getNode(ctx, key)
 
     _dm.push(node)
 
@@ -91,6 +78,7 @@ def getValue(f, info, a, k):
         if v is not _noVal:
             Monitor.msg('GetValue', -1, 'from ctx', key=key, ctx=ctx, value=v)
             return v
+        name = f.func_name
         v = obj.meta.getField(name)
         if v is not _noVal:
             Monitor.msg('GetValue', -1, 'from stored', key=key, ctx=ctx, value=v)
@@ -99,7 +87,8 @@ def getValue(f, info, a, k):
         ctxE = node.ctx
         Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctxE)
         with ctxE:
-            v = f(*a, **k)
+            fa = key.fArgs()
+            v = f(*fa)
         Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctxE)
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
@@ -113,13 +102,25 @@ def getValue(f, info, a, k):
         _dm.establishDep()
         _dm.pop()
 
+def getKey(f, info, a, k):
+    assert not k
+    fName = info['key']
+    tweakable = info.get('tweakable', False)
+    # XXX - this doesn't handle methods with kwargs correctly
+    obj = a[0]
+    args = a[1:]
+    name = f.func_name
+    key = NodeKey(obj, f, fName, args, tweakable)
+    return key
+
 def makeFn(f, info={}):
     name = f.func_name
     info = info.copy()
     info['name'] =  name
     # Note: info['key'] is added by DBOMetaClass
     def fn(*a, **k):
-        v = getValue(f, info, a, k)
+        key = getKey(f, info, a, k)
+        v = getValue(f, key)
         return v
     fn.nodeInfo = info
     return fn
