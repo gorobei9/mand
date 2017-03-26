@@ -34,8 +34,9 @@ class DependencyManager(object):
 
     # Context selection stuff...
     
-    def getNode(self, ctx, key):
-        node = ctx.get(key)
+    def getNode(self, ctx, key, tweakable=False):
+        ### XXX - fix
+        node = ctx.get(key, tweakable=tweakable)
         return node
     
 _dm = DependencyManager()
@@ -60,13 +61,13 @@ def getNode(bm):
 def find(bm, fn):
     v = bm()
     n = getNode(bm)
-    # XXX - sort this out
-    #c = Context.current()
-    #n = c.getBM(bm)
     return n.find(fn)
     
-def getValue(f, fName, a, k):
+def getValue(f, info, a, k):
     assert not k
+
+    fName = info['key']
+    tweakable = info.get('tweakable')
     
     # XXX - this doesn't handle methods with kwargs correctly
     obj = a[0]
@@ -76,8 +77,8 @@ def getValue(f, fName, a, k):
     key = NodeKey(obj, f, fName, args)
     
     ctx = Context._root() if obj._isCosmic else Context.current()
-        
-    node = _dm.getNode(ctx, key)
+    
+    node = _dm.getNode(ctx, key, tweakable=tweakable)
 
     _dm.push(node)
 
@@ -113,7 +114,7 @@ def makeFn(f, info={}):
     info['name'] =  name
     # Note: info['key'] is added by DBOMetaClass
     def fn(*a, **k):
-        v = getValue(f, info['key'], a, k)
+        v = getValue(f, info, a, k)
         return v
     fn.nodeInfo = info
     return fn

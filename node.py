@@ -3,23 +3,26 @@ from noval import _noVal
 
 class NodeKey(object):
     
-    def __init__(self, obj, bm, fullName, args):
+    def __init__(self, obj, fn, fullName, args):
         assert ':' in fullName
         self._key = (obj, fullName, args)
-        self.bm = bm
-
+        #self.bm = fn
+         
     def object(self):
         return self._key[0]
     
     def fullName(self):
         return self._key[1]
-    
+
+    def shortName(self):
+        return self.fullName().split(':')[-1]
+
     def __repr__(self):
-        return '<NodeKey:%s.(%s) %s %s>' % (self._key + (self.fn,))
+        return '<NodeKey:%s.(%s) %s>' % self._key
 
     def strForMonitor(self):
         key = self._key
-        return '%s@%x/%s:%s' % (key[0].__class__.__name__, id(key[0]), key[1], key[2])
+        return '%s.(%s)%s' % (key[0].meta.path(), key[1], key[2])
     
     @classmethod
     def fromBM(cls, bm):
@@ -30,23 +33,27 @@ class NodeKey(object):
         return NodeKey(obj, bm, fullName, args)
         
 class Node(object):
-    def __init__(self, ctx, key, value): # , tweakPoint=None, tweakable=False, onCalced=None):
+    def __init__(self, ctx, key, value, tweakable=False):
         self.ctx = ctx
         self.value = value
         self.key = key
         self.tweaked = False
-        self.tweakable = False
+        self.tweakable = tweakable
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         self.footnotes = {}
-        self.tweakPoint = key.bm
-        
+            
     def copy(self, newCtx):
         c = Node(newCtx, self.key, self.value)
         c.tweakable = self.tweakable
-        c.tweakPoint = self.tweakPoint
         return c
-        
+
+    def tweak(self, v):
+        if not self.tweakable:
+            raise RuntimeError('trying to tweak un-tweakable %s' % self)
+        self.value = v
+        self.tweaked = True
+
     def object(self):
         return self.key.object()
 
@@ -56,7 +63,7 @@ class Node(object):
     def __repr__(self):
         key = self.key
         ctx = self.ctx
-        return '<%s in %s>' % (key.strForMonitor(), ctx.name)
+        return '<Node: %s in %s @%s T=%s>' % (key.strForMonitor(), ctx.name, id(self), self.tweakable)
 
     def find(self, fn):
         ret = set()

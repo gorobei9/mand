@@ -291,25 +291,36 @@ class PnLExplainReport(Entity):
         return None
 
     @node
-    def clocks(self):
+    def cutoffs(self):
         valuable = self.valuable()
         ts1 = self.ts1()
         ts2 = self.ts2()
+        
         clock = valuable.getObj(_tr.RootClock, 'Main')
+
+        def fn(node):
+            return True
+        nodes = find(clock.cutoffs, fn)
     
-        def clks(ts):
+        def cuts(ts):
             def fn(node):
                 obj = node.key.object()
-                m = node.key.fullName().split(':')[-1]
+                m = node.key.shortName()
                 if isinstance(obj, _tr.Clock) and m == 'cutoffs':
                     return True
             with Context({clock.cutoffs: ts}, 'Clocks'):
                 nodes = find(valuable.NPV, fn)
-                return dict( [ (node.tweakPoint, node) for node in nodes ] )
-    
-        allNodes = clks(ts1)
-        allNodes.update(clks(ts2))
-        return allNodes.values() 
+                return nodes
+
+        ret = {}
+        for n in cuts(ts1):
+            ret[n.key._key] = n
+        for n in cuts(ts2):
+            ret[n.key._key] = n
+        print 'cutoffs:'
+        for k, v in ret.items():
+            print k, v
+        return ret.values()
         
     @node
     def data(self):
@@ -318,11 +329,11 @@ class PnLExplainReport(Entity):
         ts2 = self.ts2()
         clock = valuable.getObj(_tr.RootClock, 'Main')
     
-        nodes = self.clocks()
+        cuts = self.cutoffs()
     
         # IRL, we'd sort these according to some business req...
         # And our clocks might be arranged in an N-level tree...
-        nodes = sorted(nodes, key = lambda node: node.key.object().meta.name())
+        cuts = sorted(cuts, key = lambda node: node.key.object().meta.name())
 
         # NPV call counts:
         #  2 - clocks
@@ -345,8 +356,9 @@ class PnLExplainReport(Entity):
             curr = [ valuable.NPV() ] # Starting balance
     
         tweaks = {}
-        for n in nodes:
-            tweaks[n.tweakPoint] = ts1
+        for n in cuts:
+            tweaks[n] = ts1
+            
         with Context(tweaks, name='Start breaks'):
             start = valuable.NPV()
             add('Starting balance breaks', start)
@@ -355,14 +367,14 @@ class PnLExplainReport(Entity):
         # XXX - modifying tweaks in place is a bit evil
         # This is only safe because I know Context() effectively copies, so this works
         # for now.
-        for n in nodes:
-            tweaks[n.tweakPoint] = tsAmend
-            name = n.key[0].meta.name()
+        for n in cuts:
+            tweaks[n] = tsAmend
+            name = n.key.object().meta.name()
             with Context(tweaks, name='Amend %s' % name):
                 add('prior day amends: %s' % name, valuable.NPV())
-        for n in nodes:
-            tweaks[n.tweakPoint] = ts2
-            name = n.key[0].meta.name()
+        for n in cuts:
+            tweaks[n] = ts2
+            name = n.key.object().meta.name()
             with Context(tweaks, name='Activity %s' % name):
                 add('activity: %s' % name, valuable.NPV())
     

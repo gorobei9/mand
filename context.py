@@ -9,20 +9,19 @@ class ContextBase(object):
         key = nodeKey._key
         return self.cache.get(key)
 
-    def get(self, nodeKey):
+    def get(self, nodeKey, tweakable):
         v = self._get(nodeKey)
         if v:
             return v
-        node = Node(self, nodeKey, value=_noVal)
+        node = Node(self, nodeKey, value=_noVal, tweakable=tweakable)
         self.set(nodeKey, node)
         return node
 
-    def getFromBM(self, bm):
-        key = NodeKey.fromBM(bm)
-        node = self.get(key)
+    def getFromBM(self, bm): 
         nodeInfo = bm.nodeInfo
-        if nodeInfo.get('tweakable'):
-            node.tweakable = True
+        key = NodeKey.fromBM(bm)
+        node = self.get(key, nodeInfo.get('tweakable'))
+        ### XXX - fix
         return node
         
     def set(self, nodeKey, node):
@@ -33,8 +32,7 @@ class ContextBase(object):
     
 class RootContext(ContextBase):
     def __init__(self):
-        self.parent = None
-        self.tweaks = {}
+        self.tweaks = set()
         self.cache = {}
         self.name = 'Root'
 
@@ -43,7 +41,7 @@ class Context(ContextBase):
     
     def __init__(self, tweaks, name=None):
         p = self.current()
-
+        
         self.name = name if name else '%s' % id(name)
         if p:
             self.name = '%s:%s' % (p.name, self.name)
@@ -58,12 +56,12 @@ class Context(ContextBase):
             self.allTweaks.add(node)
             
         for k, v in tweaks.items():
-            node = self.getFromBM(k)
+            if isinstance(k, Node):
+                node = k
+            else:
+                node = self.getFromBM(k)
             key = node.key
-            if not node.tweakable:
-                raise RuntimeError('trying to tweak un-tweakable %s' % node)
-            node.value = v
-            node.tweaked = True
+            node.tweak(v)
             self.tweaks.add(node)
             self.set(key, node)
 
@@ -87,4 +85,6 @@ class Context(ContextBase):
     @classmethod
     def inRootContext(cls):
         return cls.current() == cls._contexts[0]
-    
+
+
+
