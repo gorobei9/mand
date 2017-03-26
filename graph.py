@@ -96,9 +96,11 @@ def getValue(f, info, a, k):
             Monitor.msg('GetValue', -1, 'from stored', key=key, ctx=ctx, value=v)
             node.value = v
             return v
-        Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctx)
-        v = f(*a, **k)
-        Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctx)
+        ctxE = node.ctx
+        Monitor.msg('GetValue/Calc', 1, 'begin', key=key, ctx=ctxE)
+        with ctxE:
+            v = f(*a, **k)
+        Monitor.msg('GetValue/Calc', -1, 'end', key=key, ctx=ctxE)
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
             obj.meta.setField(name, v)

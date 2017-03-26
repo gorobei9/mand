@@ -36,6 +36,12 @@ class RootContext(ContextBase):
         self.cache = {}
         self.name = 'Root'
 
+    def __enter__(self, *a):
+        return self
+    
+    def __exit__(self, *a):
+        pass
+        
 class Context(ContextBase):
     _contexts = [RootContext()]
     
