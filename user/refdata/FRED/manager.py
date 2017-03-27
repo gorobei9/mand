@@ -30,7 +30,7 @@ class FredManager(Entity):
         
     @node
     def apiKeyFileName(self):
-        return '../fred/.api_key'
+        return '../.fred_api.key'
     
     @node
     def apiKey(self):

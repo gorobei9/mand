@@ -392,6 +392,5 @@ class PnLExplainReport(Entity):
         displayListOfDicts(data, names=['Activity', 'PnL'] )
         if footnotes:
             r = [ '## Footnotes:' ]
-            r.extend(node.footnotesMarkdown())
-            displayMarkdown('\n'.join(r))
+            displayMarkdown(node.footnoteMarkdown())
             
