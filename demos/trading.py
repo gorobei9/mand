@@ -385,14 +385,13 @@ class PnLExplainReport(Entity):
     def run(self):
         data, title = self.data()
         node = getNode(self.data)
-        footnotes = node.footnotes.values()
+        footnotes = node.footnotes
         displayHeader('%s' % title)
         if footnotes:
             displayMarkdown('**Caveat: this report encountered problems. See footnotes at bottom.**')
         displayListOfDicts(data, names=['Activity', 'PnL'] )
         if footnotes:
             r = [ '## Footnotes:' ]
-            for f in footnotes:
-                r.append(f.markdown())
+            r.extend(node.footnotesMarkdown())
             displayMarkdown('\n'.join(r))
             

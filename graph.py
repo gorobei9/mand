@@ -3,7 +3,7 @@ from context import Context
 from noval import _noVal
 from monitor import Monitor
 from node import Node, NodeKey
-from footnote import addFootnote
+from dictutils import merge
 
 class DependencyManager(object):
     def __init__(self):
@@ -16,11 +16,10 @@ class DependencyManager(object):
             output = self.stack[-2]
             input = self.stack[-1]
             self.addDep(input, output)
-            self.addFootnotes(input, output)
+            self.mergeMeta(input, output)
             
-    def addFootnotes(self, input, output):
-        for k, v in input.footnotes.items():
-            addFootnote(text=k, infos=v.infos, node=output)
+    def mergeMeta(self, input, output):
+        merge(output.footnotes, input.footnotes, deleteZeros=False)
                         
     def addDep(self, input, output):
         output.inputs.add(input)

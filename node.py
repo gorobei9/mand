@@ -44,6 +44,7 @@ class Node(object):
         self.tweaked = False
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
+        
         self.footnotes = {}
             
     def copy(self, newCtx):
@@ -93,3 +94,11 @@ class Node(object):
                 o._invalidate()
             self.inputs = set()
             self.outputs = set()
+
+    def footnoteMarkdown(self):
+        ret = []
+        for k, i in self.footnotes.items():
+            ret.append( '1. %s' % k)
+            for v in sorted(i):
+                ret.append( '  * %s' % v)
+        return '\n'.join(ret)
