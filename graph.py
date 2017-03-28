@@ -35,7 +35,7 @@ class DependencyManager(object):
     # Context selection stuff...
 
     def calculated(self, node):
-        pass
+        return True
     
     def getNode(self, ctx, key):
         node = ctx.get(key)
@@ -95,8 +95,10 @@ def getValue(f, key):
         if name in obj._storedFields():
             Monitor.msg('SetStored', 0, 'set', key=key, value=v)
             obj.meta.setField(name, v)
-        node.value = v
-        _dm.calculated(node)
+        if _dm.calculated(node):
+            node.value = v
+        #else:
+        #    print 'huh? calc fail:', node
         Monitor.msg('GetValue', -1, 'end', key=key, ctx=ctx, value=v)
         return v
 

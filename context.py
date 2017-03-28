@@ -65,6 +65,7 @@ class Context(ContextBase):
 
             key = node.key
             node.tweak(v)
+            #print 'ctx:', self.name, 'add:', node
             self.tweaks.add(node)
             self.set(key, node)
 

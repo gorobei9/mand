@@ -6,7 +6,6 @@ class DM1(DependencyManager):
     
     def __init__(self):
         self.contexts = {}
-        self.simpleClockMethods = ('Workbook:items', 'RefData:state', 'Portfolio:children', 'Portfolio:items')
         super(DM1, self).__init__()
         
     def addDep(self, input, output):
@@ -20,17 +19,20 @@ class DM1(DependencyManager):
     
     def calculated(self, node):
         if not node.isSimplified:
-            return
+            return True
+        ok = True
         for input in node.tweakPoints():
             if input not in node.ctx.tweaks:
-                addFootnote(text='context simplification failure', info='%s on %s' % (str(node.key), str(input.key)))
+                addFootnote(text='context simplification failure', info='%s in %s on %s in %s' % (str(node.key), node.ctx.name, str(input.key), input.ctx.name))
                 print
                 print 'node:', node
                 print 'tweaks:'
                 for t in node.ctx.tweaks:
                     print t
                 print 'input:', input
-                  
+                ok = False
+        return ok
+    
     def getCtx(self, clock):
         ts = clock.cutoffs()
         cKey = (clock, ts) # really want value-based comparison of ts, not object equality
@@ -43,13 +45,6 @@ class DM1(DependencyManager):
         n = ctx._get(key)
         if n:
             return n
-        if key.fullName() in self.simpleClockMethods:
-            obj = key.object()
-            ctx1 = self.getCtx(obj.clock())
-            ret = ctx1.get(key)
-            ret.isSimplified = True
-        else:
-            ret = super(DM1, self).getNode(ctx, key)
-            ret.isSimplified = False
+        ret = super(DM1, self).getNode(ctx, key)
         return ret
     
