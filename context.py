@@ -58,6 +58,7 @@ class Context(ContextBase):
             if isinstance(k, Node):
                 # XXX - why?
                 # is node even in the right ctx?
+                # This gets called in explain report that finds nodes to tweak
                 node = k
             else:
                 key = NodeKey.fromBM(k)

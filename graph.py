@@ -3,62 +3,21 @@ from context import Context
 from noval import _noVal
 from monitor import Monitor
 from node import Node, NodeKey
-from dictutils import merge
-
-class DependencyManager(object):
-    def __init__(self):
-        self.stack = []
-        
-    # Input management stuff...
+from depmanager import DependencyManager, dm
     
-    def establishDep(self):
-        if len(self.stack) > 1:
-            output = self.stack[-2]
-            input = self.stack[-1]
-            self.addDep(input, output)
-            self.mergeMeta(input, output)
-            
-    def mergeMeta(self, input, output):
-        merge(output.footnotes, input.footnotes, deleteZeros=False)
-        output._tweakPoints.update(input.tweakPoints())
-
-    def addDep(self, input, output):
-        output.inputs.add(input)
-        input.outputs.add(output)
-
-    def push(self, node):
-        self.stack.append(node)
-        
-    def pop(self):
-        self.stack.pop()
-
-    # Context selection stuff...
-
-    def calculated(self, node):
-        return True
-    
-    def getNode(self, ctx, key):
-        node = ctx.get(key)
-        return node
-    
-_dm = DependencyManager()
-
-def setDependencyManager(dm):
-    global _dm
-    _dm = dm
-
                  
 def _getCurrentNode():
-    return _dm.stack[-1]
+    return dm().stack[-1]
 
-def getNode(bm):
+def getNode(bm, ctx=None):
     obj = bm.im_self
-    if obj._isCosmic:
-        ctx = Context._root()
-    else:
-        ctx = Context.current()
+    if ctx is None:
+        if obj._isCosmic:
+            ctx = Context._root()
+        else:
+            ctx = Context.current()
     key = NodeKey.fromBM(bm)
-    node = _dm.getNode(ctx, key)
+    node = dm().getNode(ctx, key)
     return node
 
 def find(bm, fn):
@@ -70,6 +29,8 @@ def getValue(f, key):
     obj = key.object()
     ctx = Context._root() if obj._isCosmic else Context.current()
 
+    _dm = dm()
+    
     node = _dm.getNode(ctx, key)
     
     _dm.push(node)

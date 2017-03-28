@@ -135,18 +135,22 @@ class TradeOpenEvent(WorkItemOpenEvent):
 
 _tr.add(TradeOpenEvent)
 
-def makeWorld():
+def makeWorld(small=False):
     def makeTree(names):
         ret = []
         for name in names:
-            subs = [ TradingBook(name+str(i)) for i in range(10) ]
+            n = 2 if small else 10
+            subs = [ TradingBook(name+str(i)) for i in range(n) ]
             p = TradingPortfolio(name).write()
             p.setChildren(subs)
             ret.append(p)
         return ret
 
     pAll = TradingPortfolio('TopOfTheHouse').write()
-    subs = makeTree(['Eq-Prop', 'Eq-Inst', 'FX', 'Rates', 'Credit', 'Delta1', 'Loans', 'Commod', 'ETFs', 'Mtge'])
+    pNames = ['Eq-Prop', 'Eq-Inst', 'FX', 'Rates', 'Credit', 'Delta1', 'Loans', 'Commod', 'ETFs', 'Mtge']
+    if small:
+        pNames = pNames[:4]
+    subs = makeTree(pNames)
     pAll.setChildren(subs)
 
     bExt  = _tr.TradingBook('Customer1')
