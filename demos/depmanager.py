@@ -1,5 +1,5 @@
 
-from mand.core import Context, addFootnote
+from mand.core import Context, addFootnote, getNode
 from mand.graph import DependencyManager
 
 class DM1(DependencyManager):
@@ -32,19 +32,35 @@ class DM1(DependencyManager):
                 print 'input:', input
                 ok = False
         return ok
-    
-    def getCtx(self, clock):
-        ts = clock.cutoffs()
-        cKey = (clock, ts) # really want value-based comparison of ts, not object equality
-        if cKey not in self.contexts:
-            name = 'Simp-%s' % clock.meta.name()
-            self.contexts[cKey] = Context({clock.cutoffs: ts}, name)
-        return self.contexts[cKey]
+
+    def simplify(self, key):
+        if key.fullName() == 'MarketInterface1:spot':
+            obj = key.object()
+            
+            dep1 = obj.sourceName
+            dep2 = obj.source().clock().cutoffs
+            
+            return (dep1, dep2)
             
     def getNode(self, ctx, key):
         n = ctx._get(key)
         if n:
             return n
-        ret = super(DM1, self).getNode(ctx, key)
+        s = self.simplify(key)
+        if s: 
+            nodes = [ getNode(bm) for bm in s ]
+            values = [ bm() for bm in s ]
+            k = [ (n.object(), n.key.fullName(), v) for n, v in zip(nodes, values) ]
+            cKey = tuple(k)
+            
+            if cKey not in self.contexts:
+                tweaks = dict( [ (bm, v) for bm, v in zip(s, values)])
+                ctx1 = Context(tweaks, 'simp')
+                self.contexts[cKey] = ctx1
+            ctx1 = self.contexts[cKey]
+            ret = ctx1.get(key)
+            ret.isSimplified = True
+        else:
+            ret = super(DM1, self).getNode(ctx, key)
+            ret.isSimplified = False
         return ret
-    
