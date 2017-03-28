@@ -10,9 +10,9 @@ class DM1(DependencyManager):
         super(DM1, self).__init__()
         
     def addDep(self, input, output):
-        if not input.key.tweakable:
-            if not input.inputs:
-                return
+        #if not input.key.tweakable:
+        #    if not input.inputs:
+        #        return
         output.inputs.add(input)
         input.outputs.add(output)
 
@@ -21,9 +21,11 @@ class DM1(DependencyManager):
     def calculated(self, node):
         if not node.isSimplified:
             return
-        for input in node.inputs:
+        for input in node.tweakPoints():
             if input not in node.ctx.tweaks:
                 addFootnote(text='context simplification failure', info='%s on %s' % (str(node.key), str(input.key)))
+                print
+                print 'node:', node
                 print 'tweaks:'
                 for t in node.ctx.tweaks:
                     print t

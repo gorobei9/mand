@@ -46,7 +46,14 @@ class Node(object):
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         
         self.footnotes = {}
-            
+        self._tweakPoints = set()
+
+    def tweakPoints(self):
+        if self.key.tweakable:
+            return set([self])
+        else:
+            return self._tweakPoints
+        
     def copy(self, newCtx):
         c = Node(newCtx, self.key, self.value)
         return c

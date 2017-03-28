@@ -17,12 +17,6 @@ class ContextBase(object):
         self.set(nodeKey, node)
         return node
 
-    def getFromBM(self, bm): 
-        nodeInfo = bm.nodeInfo
-        key = NodeKey.fromBM(bm)
-        node = self.get(key)
-        return node
-        
     def set(self, nodeKey, node):
         key = nodeKey._key
         Monitor.msg('Context', 0, 'set', ctx=self, key=nodeKey, value=node.value)
@@ -39,7 +33,7 @@ class RootContext(ContextBase):
         return self
     
     def __exit__(self, *a):
-        pass
+        return False
         
 class Context(ContextBase):
     _contexts = [RootContext()]
@@ -62,9 +56,13 @@ class Context(ContextBase):
             
         for k, v in tweaks.items():
             if isinstance(k, Node):
+                # XXX - why?
+                # is node even in the right ctx?
                 node = k
             else:
-                node = self.getFromBM(k)
+                key = NodeKey.fromBM(k)
+                node = self.get(key)
+
             key = node.key
             node.tweak(v)
             self.tweaks.add(node)
@@ -79,6 +77,7 @@ class Context(ContextBase):
         Monitor.msg('Context', -1, 'exit', ctx=self, name=self.name)
         c = self._contexts.pop()
         assert c == self
+        return False
       
     @classmethod
     def current(cls):

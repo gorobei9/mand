@@ -16,6 +16,7 @@ class Monitor(object):
             self.onExitErr()
         else:
             self.onExit()
+        return False
 
     def onEntry(self):
         pass

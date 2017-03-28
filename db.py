@@ -17,6 +17,7 @@ class _ObjectDbBase(object):
     def __exit__(self, *a):
         db = self._dbs.pop()
         assert db == self
+        return False
 
     def get(self, name):
         if name not in self.cache:

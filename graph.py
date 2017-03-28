@@ -20,7 +20,8 @@ class DependencyManager(object):
             
     def mergeMeta(self, input, output):
         merge(output.footnotes, input.footnotes, deleteZeros=False)
-                        
+        output._tweakPoints.update(input.tweakPoints())
+
     def addDep(self, input, output):
         output.inputs.add(input)
         input.outputs.add(output)
@@ -56,7 +57,8 @@ def getNode(bm):
         ctx = Context._root()
     else:
         ctx = Context.current()
-    node = ctx.getFromBM(bm)
+    key = NodeKey.fromBM(bm)
+    node = _dm.getNode(ctx, key)
     return node
 
 def find(bm, fn):
@@ -67,8 +69,9 @@ def find(bm, fn):
 def getValue(f, key):
     obj = key.object()
     ctx = Context._root() if obj._isCosmic else Context.current()
-    node = _dm.getNode(ctx, key)
 
+    node = _dm.getNode(ctx, key)
+    
     _dm.push(node)
 
     try:
