@@ -3,22 +3,11 @@ from context import Context
 from noval import _noVal
 from monitor import Monitor
 from node import Node, NodeKey
-from depmanager import DependencyManager, dm
+from depmanager import DependencyManager, dm, getNode
     
                  
 def _getCurrentNode():
     return dm().stack[-1]
-
-def getNode(bm, ctx=None):
-    obj = bm.im_self
-    if ctx is None:
-        if obj._isCosmic:
-            ctx = Context._root()
-        else:
-            ctx = Context.current()
-    key = NodeKey.fromBM(bm)
-    node = dm().getNode(ctx, key)
-    return node
 
 def find(bm, fn):
     v = bm()

@@ -2,6 +2,7 @@
 from noval import _noVal
 from monitor import Monitor
 from node import Node, NodeKey
+from depmanager import getNode, getNodeFromKey
 
 class ContextBase(object):
 
@@ -49,10 +50,12 @@ class Context(ContextBase):
         self.allTweaks = set()
         self.tweaks = set()
         self.cache = {}
-        
-        for node in p.tweaks:
-            self.set(node.key, node.copy(self))
-            self.allTweaks.add(node)
+
+        if p:
+            for node in p.tweaks:
+                n = node.copy(self)
+                self.set(node.key, n)
+                self.allTweaks.add(node)
             
         for k, v in tweaks.items():
             if isinstance(k, Node):
@@ -60,13 +63,12 @@ class Context(ContextBase):
                 # is node even in the right ctx?
                 # This gets called in explain report that finds nodes to tweak
                 node = k
+                node = getNodeFromKey(node.key, self)
             else:
-                key = NodeKey.fromBM(k)
-                node = self.get(key)
+                node = getNode(k, self)
 
             key = node.key
             node.tweak(v)
-            #print 'ctx:', self.name, 'add:', node
             self.tweaks.add(node)
             self.set(key, node)
 
@@ -93,5 +95,18 @@ class Context(ContextBase):
     def inRootContext(cls):
         return cls.current() == cls._contexts[0]
 
+class SimplificationContext(Context):
+    
+    def __init__(self, tweaks, name=None):
+        self.name = name if name else '%s' % id(name)
+        Monitor.msg('Context', 0, 'create', ctx=self, name=self.name)
+
+        self.tweaks = set()
+        self.cache = {}
+
+        for k, v in tweaks.items():
+            node = getNode(k, self)
+            node.tweak(v)
+            self.tweaks.add(node)
 
 

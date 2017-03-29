@@ -17,8 +17,6 @@ class Entity(_DBO):
     @node
     def clock(self):
         return self.getObj(RootClock, 'Main')
-        #db = self.meta.db
-        #return RootClock.get('Main', db=db)
     
     def _visibleEvents(self):
         evs = self._allEvents()

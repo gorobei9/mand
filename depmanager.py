@@ -1,5 +1,6 @@
 
 from dictutils import merge
+from node import NodeKey
 
 class DependencyManager(object):
     def __init__(self):
@@ -16,8 +17,10 @@ class DependencyManager(object):
             
     def mergeMeta(self, input, output):
         merge(output.footnotes, input.footnotes, deleteZeros=False)
-        output._tweakPoints.update(input.tweakPoints())
-
+        output._tweakPoints.update(input._tweakPoints)
+        if input.key.tweakable and not input.tweaked:
+            output._tweakPoints.add(input)
+            
     def addDep(self, input, output):
         output.inputs.add(input)
         input.outputs.add(output)
@@ -46,3 +49,17 @@ def setDependencyManager(dm):
     global _dm
     _dm = dm
 
+def getNode(bm, ctx=None):
+    key = NodeKey.fromBM(bm)
+    return getNodeFromKey(key, ctx)
+
+def getNodeFromKey(key, ctx=None):
+    if ctx is None:
+        obj = key.object()
+        from context import Context
+        if obj._isCosmic:
+            ctx = Context._root()
+        else:
+            ctx = Context.current()
+    node = dm().getNode(ctx, key)
+    return node

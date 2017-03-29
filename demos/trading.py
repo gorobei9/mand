@@ -166,7 +166,7 @@ def makeWorld(small=False):
     
     return pWorld
 
-def bookSomeTrades(pWorld):
+def bookSomeTrades(pWorld, small=False):
 
     pAll, bExt, bExt2 = pWorld.children()
 
@@ -198,7 +198,8 @@ def bookSomeTrades(pWorld):
         
         ts0 = Timestamp()
 
-        for i in range(1000):
+        n = 2 if small else 1000
+        for i in range(n):
             ev0 = TradeOpenEvent(action='Buy',
                                  item=ins2,
                                  quantity=1,
@@ -206,8 +207,9 @@ def bookSomeTrades(pWorld):
                                  unitPrice=852 + i/100.,
                                  book1=b3,
                                  book2=bExt2).write()
-            
-        for i in range(10):
+
+        n = 2 if small else 10
+        for i in range(n):
             ev0 = TradeOpenEvent(action='Buy',
                                  item=ins2,
                                  quantity=1,

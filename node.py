@@ -45,11 +45,15 @@ class Node(object):
         self.inputs = set()
         self.outputs = set() # hardly pulling its weight: only used by _invalidate
         
+        self.simplified = False
+        
         self.footnotes = {}
         self._tweakPoints = set()
 
-    def tweakPoints(self):
-        if self.key.tweakable:
+    def floatingTweakPoints(self):
+        if self.tweaked:
+            return set()
+        elif self.key.tweakable:
             return set([self])
         else:
             return self._tweakPoints
@@ -73,7 +77,7 @@ class Node(object):
     def __repr__(self):
         key = self.key
         ctx = self.ctx
-        return '<Node: %s in %s @%s T=%s>' % (key.strForMonitor(), ctx.name, id(self), self.key.tweakable)
+        return '<Node: %s in %s @%s>' % (key.strForMonitor(), ctx.name, id(self))
 
     def find(self, fn):
         ret = set()
@@ -86,13 +90,18 @@ class Node(object):
         _find(self)
         return list(ret)
     
-    def printInputGraph(self, depth=0):
+    def printInputGraph(self, depth=0, maxDepth=None):
+        if maxDepth is not None and depth >= maxDepth:
+            return
         if self.value is _noVal:
             print '  '*depth, self, '*not evaluated*'
         else:
             print'%s%s, nIn=%s' % ('   '*depth, self, len(self.inputs))
-        for i in sorted(self.inputs, key=lambda n: [ n.object().meta.path(), n.methodId() ]):
-            i.printInputGraph(depth+1)
+        for i, n in enumerate(sorted(self.inputs, key=lambda n: [ n.object().meta.path(), n.methodId() ])):
+            if maxDepth is not None and i > 10:
+                print'   '*depth, '...'
+                break
+            n.printInputGraph(depth+1, maxDepth=maxDepth)
 
     def _invalidate(self):
         if self.value is not _noVal:

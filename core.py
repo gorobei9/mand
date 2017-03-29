@@ -11,7 +11,7 @@ from encdec import EncDec
 from noval import _noVal
 from node import Node, NodeKey
 from depmanager import DependencyManager, setDependencyManager
-from context import Context
+from context import Context, SimplificationContext
 from guid import getUUID
 from objmeta import DBOMeta, EntityMeta, EventMeta
 from dbo import DBOMetaClass, _DBO
