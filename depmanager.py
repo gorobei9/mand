@@ -1,6 +1,7 @@
 
 from dictutils import merge
 from node import NodeKey
+from utils import displayMarkdown
 
 class DependencyManager(object):
     def __init__(self):
@@ -14,7 +15,12 @@ class DependencyManager(object):
             input = self.stack[-1]
             self.addDep(input, output)
             self.mergeMeta(input, output)
-            
+        else:
+            # at top level, display issues, if any...
+            input = self.stack[-1]
+            if input.footnotes:
+                displayMarkdown(input.footnoteMarkdown())
+                
     def mergeMeta(self, input, output):
         merge(output.footnotes, input.footnotes, deleteZeros=False)
         output._tweakPoints.update(input._tweakPoints)
