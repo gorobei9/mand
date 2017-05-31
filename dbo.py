@@ -1,8 +1,8 @@
 
-from type_registry import _tr
-from objmeta import DBOMeta
-from monitor import Monitor
-from number import num
+from .type_registry import _tr
+from .objmeta import DBOMeta
+from .monitor import Monitor
+from .number import num
 
 class DBOMetaClass(type):
     def __new__(cls, name, parents, attrs):
@@ -11,7 +11,7 @@ class DBOMetaClass(type):
             if hasattr(parent, '_isDBO'):
                 for nf in parent._nodes:
                     nodes[nf['name']] = nf
-        for attrname, attrvalue in attrs.iteritems():
+        for attrname, attrvalue in attrs.items():
             if getattr(attrvalue, 'nodeInfo', 0):
                 ni = attrvalue.nodeInfo
                 ni['key'] = '%s:%s' % (name, ni['name'])
@@ -25,8 +25,7 @@ class DBOMetaClass(type):
         return ret
 
 
-class _DBO(object):
-    __metaclass__ = DBOMetaClass
+class _DBO(object, metaclass=DBOMetaClass):
     _instanceMetaclass = DBOMeta
     _isDBO = True
     _isCosmic = False
@@ -66,7 +65,7 @@ class _DBO(object):
         try:
             ret = self.meta.db.getObj(cls, name, create=create)
         except:
-            print 'Problem getting %s of class %s' % (name, cls)
+            print('Problem getting %s of class %s' % (name, cls))
             raise
         return ret
     

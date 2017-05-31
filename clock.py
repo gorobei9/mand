@@ -1,8 +1,8 @@
 
-from obj import Entity, Event
-from graph import node
-from type_registry import _tr
-from root_clock import RootClock
+from .obj import Entity, Event
+from .graph import node
+from .type_registry import _tr
+from .root_clock import RootClock
 
 class Clock(Entity):
     @node

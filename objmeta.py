@@ -1,12 +1,12 @@
 
-from db import ObjectDb
-from encdec import EncDec
-from type_registry import _tr
-from context import Context
-from noval import _noVal
-from timestamp import Timestamp
-from guid import getUUID
-from monitor import Monitor
+from .db import ObjectDb
+from .encdec import EncDec
+from .type_registry import _tr
+from .context import Context
+from .noval import _noVal
+from .timestamp import Timestamp
+from .guid import getUUID
+from .monitor import Monitor
 
 class DBOMeta(object):
     def __init__(self, obj, name=None, db=None, kwargs=None):

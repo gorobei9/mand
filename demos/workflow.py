@@ -63,14 +63,14 @@ def main(_odb):
         endOfDay = Timestamp()
 
     def status():
-        print 'Status:'
+        print('Status:')
         for wb in wb1, wb3, hd, fd:
-            print '    Workbook %s:' % wb.meta.name()
+            print('    Workbook %s:' % wb.meta.name())
             for ticket in wb.tickets():
-                print '        %s' % ticket.str(source=wb)
+                print('        %s' % ticket.str(source=wb))
                 for event in ticket.activeEvents():
-                    print '           %s' % event.str(source=wb)
-            print
+                    print('           %s' % event.str(source=wb))
+            print()
 
 
     # In[186]:
@@ -109,15 +109,15 @@ def main(_odb):
 
     displayTable(ticket._allEvents())
 
-    print
+    print()
 
     displayTable(ticket.activeEvents())
 
 
     # In[192]:
 
-    print ticket.sourceBook().refData()
+    print(ticket.sourceBook().refData())
 
-    print ticket.sourceBook().clock().str()
-    print ticket.sourceBook().refData().clock().str()
+    print(ticket.sourceBook().clock().str())
+    print(ticket.sourceBook().refData().clock().str())
 

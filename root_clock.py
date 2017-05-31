@@ -1,8 +1,8 @@
 
-from dbo import _DBO
-from graph import node
-from type_registry import _tr
-from cosmic_all import CosmicAll
+from .dbo import _DBO
+from .graph import node
+from .type_registry import _tr
+from .cosmic_all import CosmicAll
 
 class RootClock(_DBO):
     @node

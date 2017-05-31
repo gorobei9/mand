@@ -93,14 +93,14 @@ def main(_odb):
 
     def info(customer, verbose=True):
         if verbose:
-            print 'Clock is at:', customer.clock().cutoffs()
-        print 'data: %s works for %s, located at %s' % (customer.fullName(), customer.company() , customer.address())
+            print('Clock is at:', customer.clock().cutoffs())
+        print('data: %s works for %s, located at %s' % (customer.fullName(), customer.company() , customer.address()))
         if verbose:
-            print
+            print()
             customer.printActivity(customer._visibleEvents)
             customer.printActivity(customer.activeEvents)
-            print
-            print
+            print()
+            print()
                 
     info(cr)
     with Context({clock.cutoffs: ts1}) as ctx:
@@ -111,29 +111,29 @@ def main(_odb):
     # ## Testing that a different client sees the same data [Test]
 
 
-    print 'original db  :',  _odb._describe()
+    print('original db  :',  _odb._describe())
 
     _db2 = _odb.copy()
     
-    print 'new client db:',  _db2._describe()
-    print
+    print('new client db:',  _db2._describe())
+    print()
 
     c = _db2.get(cr.meta.path())
     assert c.clock() is not clock
-    print 'current:', c.fullName()
+    print('current:', c.fullName())
     assert c.fullName() == 'Eliza James'
 
     with Context({c.clock().cutoffs: ts1}) as ctx:
-        print 'at ts1 :', c.fullName()
+        print('at ts1 :', c.fullName())
         assert c.fullName() == 'Eliza Smith'
-        print
+        print()
     assert not c.meta.isNew
 
 
     # ## Testing modification in a private copy of the db [Test]
 
-    print 'Prod db:', _odb._describe()
-    print
+    print('Prod db:', _odb._describe())
+    print()
 
     _dbNew = ObjectDb()
 
@@ -141,27 +141,27 @@ def main(_odb):
 
     customer = _dbU.get(cr.meta.path())
 
-    print 'in production:'
+    print('in production:')
     info(customer, verbose=False)
 
     ev4 = customer.activeEvents()[-1]
-    print 'deleting union event:', ev4, ev4.meta.db.name
+    print('deleting union event:', ev4, ev4.meta.db.name)
     ev4.delete()
 
-    print
-    print 'in union:'
+    print()
+    print('in union:')
 
     info(customer, verbose=False)
 
-    print 'in production:'
+    print('in production:')
     _dbProd = _odb.copy()
 
     customer = _dbProd.get(cr.meta.path())
     info(customer, verbose=False)
 
-    print 'Prod db:', _odb._describe()
-    print 'New db:', _dbNew._describe()
-    print 'Union db:', _dbU._describe()
+    print('Prod db:', _odb._describe())
+    print('New db:', _dbNew._describe())
+    print('Union db:', _dbU._describe())
 
 
     # ## Testing valid times (i.e. back-dated transactions) [Test]
@@ -178,7 +178,7 @@ def main(_odb):
 
         endOfDay = Timestamp()
 
-        print 'Line item end of day:'
+        print('Line item end of day:')
         with Context({clock.cutoffs: endOfDay}):
             info(cr, verbose=False)
 
@@ -194,16 +194,16 @@ def main(_odb):
 
         endOfDayCorrected = Timestamp(v=endOfDay.validTime)
 
-    print 'Line item end of day (rerun):'
+    print('Line item end of day (rerun):')
     clock = cr.clock()
     with Context({clock.cutoffs: endOfDay}):
         info(cr, verbose=False)
-    print
+    print()
 
-    print 'Line item generated from corrected end of day report:'
+    print('Line item generated from corrected end of day report:')
     with Context({clock.cutoffs: endOfDayCorrected}):
         info(cr, verbose=False)
-    print
+    print()
 
-    print 'Current line item:'
+    print('Current line item:')
     info(cr, verbose=False)

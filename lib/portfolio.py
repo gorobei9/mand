@@ -57,7 +57,7 @@ class Portfolio(RefData):
         return list(ret)
     
     def prn(self, depth=0):
-        print '  '*depth, self.meta.name()
+        print('  '*depth, self.meta.name())
         for c in self.children():
             c.prn(depth+1)
             

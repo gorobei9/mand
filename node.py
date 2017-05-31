@@ -1,5 +1,5 @@
 
-from noval import _noVal
+from .noval import _noVal
 
 class NodeKey(object):
     
@@ -29,7 +29,7 @@ class NodeKey(object):
     
     @classmethod
     def fromBM(cls, bm):
-        obj = bm.im_self
+        obj = bm.__self__ # im_self
         nodeInfo = bm.nodeInfo
         fullName = nodeInfo['key']
         tweakable = nodeInfo.get('tweakable', False)
@@ -94,12 +94,12 @@ class Node(object):
         if maxDepth is not None and depth >= maxDepth:
             return
         if self.value is _noVal:
-            print '  '*depth, self, '*not evaluated*'
+            print('  '*depth, self, '*not evaluated*')
         else:
-            print'%s%s, nIn=%s' % ('   '*depth, self, len(self.inputs))
+            print('%s%s, nIn=%s' % ('   '*depth, self, len(self.inputs)))
         for i, n in enumerate(sorted(self.inputs, key=lambda n: [ n.object().meta.path(), n.methodId() ])):
             if maxDepth is not None and i > 10:
-                print'   '*depth, '...'
+                print('   '*depth, '...')
                 break
             n.printInputGraph(depth+1, maxDepth=maxDepth)
 

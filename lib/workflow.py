@@ -27,7 +27,7 @@ class Workbook(Entity):
             ibb = e._itemsByBookByTicket() # { book: { ticket: { item: q }}}
             items = ibb.get(self, {})      # { ticket: { item: q } }
             merge(ret, items)
-        return ret.keys()
+        return list(ret) # .keys()
   
     @node
     def refData(self):
@@ -39,7 +39,7 @@ class Workbook(Entity):
         return [self]
 
     def prn(self, depth=0):
-        print '  '*depth, self.meta.name()
+        print('  '*depth, self.meta.name())
 
 class WorkTicket(Entity):
     
@@ -64,7 +64,7 @@ class WorkTicket(Entity):
     def _item(self):
         items = flatten(self._itemsByBook(), deleteZeros=False)
         if len(items) == 1:
-            return items.keys()[0]
+            return list(items)[0]
         
     def sourceBook(self):
         b = [ k for k, d in self._itemsByBook().items() if any( [ v > 0 for v in d.values() ] ) ]

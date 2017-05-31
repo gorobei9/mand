@@ -1,7 +1,7 @@
 
-from type_registry import _tr
-from timestamp import Timestamp
-from monitor import Monitor
+from .type_registry import _tr
+from .timestamp import Timestamp
+from .monitor import Monitor
 
 class _ObjectDbBase(object):
     # A class more designed to avoid retyped code than doing anything good
@@ -40,7 +40,7 @@ class _ObjectDbBase(object):
         self.cosmicAll._wroteEvent()
 
     def describe(self):
-        print self._describe()
+        print(self._describe())
 
     @classmethod
     def currentDb(cls):
@@ -67,7 +67,7 @@ class ObjectDb(_ObjectDbBase):
         assert foo is None
             
         if dbDriver is None:
-            from dbdriver import DynamoDbDriver
+            from .dbdriver import DynamoDbDriver
             dbDriver = DynamoDbDriver(name=name, inMem=inMem, ro=ro)
         self.dbDriver = dbDriver
         super(ObjectDb, self).__init__()

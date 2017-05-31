@@ -1,5 +1,5 @@
 
-from printutils import strForm
+from .printutils import strForm
 
 def displayTable(objs, names=None):
     if names is None:
@@ -72,5 +72,5 @@ def displayMarkdown(md):
     from IPython.display import display, Markdown
     display(Markdown(md))
 
-def displayHeader(txt):
-    displayMarkdown('# ' + txt)
+def displayHeader(txt, level=1):
+    displayMarkdown('%s %s' % ('#'*level, txt))

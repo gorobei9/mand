@@ -1,11 +1,10 @@
 
-
-from objmeta import EntityMeta, EventMeta
-from graph import node
-from utils import displayTable
-from type_registry import _tr
-from dbo import _DBO
-from root_clock import RootClock
+from .objmeta import EntityMeta, EventMeta
+from .graph import node
+from .utils import displayTable
+from .type_registry import _tr
+from .dbo import _DBO
+from .root_clock import RootClock
 
 class Entity(_DBO):
     _instanceMetaclass = EntityMeta
@@ -55,7 +54,7 @@ class Entity(_DBO):
     def printActivity(self, evsFn=None):
         if evsFn is None:
             evsFn = self.activeEvents
-        print '%s %s:' % (self, evsFn.func_name)
+        print('%s %s:' % (self, evsFn.__name__))
         evs = evsFn()
         displayTable(evs, )
        

@@ -1,8 +1,8 @@
 
-from noval import _noVal
-from monitor import Monitor
-from node import Node, NodeKey
-from depmanager import getNode, getNodeFromKey
+from .noval import _noVal
+from .monitor import Monitor
+from .node import Node, NodeKey
+from .depmanager import getNode, getNodeFromKey
 
 class ContextBase(object):
 

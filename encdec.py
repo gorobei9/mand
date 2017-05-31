@@ -1,8 +1,8 @@
 
 import datetime
 import dateutil
-from number import num
-from monitor import Monitor
+from .number import num
+from .monitor import Monitor
 
 class EncDec(object):
     # XXX - encoding really depends on the underlying physical db, this class

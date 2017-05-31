@@ -1,6 +1,6 @@
 
 def strForm(o, sz=60):
-    if isinstance(o, (str, unicode)):
+    if isinstance(o, str): # (str, unicode)):
         m = o
     else:
         m = str(o)

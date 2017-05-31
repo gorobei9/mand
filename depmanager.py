@@ -1,7 +1,7 @@
 
-from dictutils import merge
-from node import NodeKey
-from utils import displayMarkdown
+from .dictutils import merge
+from .node import NodeKey
+from .utils import displayMarkdown
 
 class DependencyManager(object):
     def __init__(self):
@@ -62,7 +62,7 @@ def getNode(bm, ctx=None):
 def getNodeFromKey(key, ctx=None):
     if ctx is None:
         obj = key.object()
-        from context import Context
+        from .context import Context
         if obj._isCosmic:
             ctx = Context._root()
         else:

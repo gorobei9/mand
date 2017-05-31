@@ -1,6 +1,6 @@
 
-from printutils import strForm
-from utils import displayListOfDicts, displayMarkdown, displayDict, displayHeader
+from .printutils import strForm
+from .utils import displayListOfDicts, displayMarkdown, displayDict, displayHeader
 import time
 
 class Monitor(object):
@@ -52,7 +52,7 @@ class Monitor(object):
         return info
     
     def message(self, *a, **k):
-        print 'Monitor(baseclass).msg:', a, k
+        print('Monitor(baseclass).msg:', a, k)
 
     @classmethod
     def msg(cls, *a, **k):
@@ -76,11 +76,11 @@ class PrintMonitor(Monitor):
         info = self.kwToStr(kw)
 
         if sys in ('GetValue', 'GetValue/Calc'):
-            print ind, sys, action, info
+            print(ind, sys, action, info)
             return
         if action in ('end', 'exit'):
             return
-        print ind, sys, action, info
+        print(ind, sys, action, info)
             
 class SummaryMonitor(Monitor):
 
@@ -96,7 +96,7 @@ class SummaryMonitor(Monitor):
 
     def onExit(self):
         elapsed = time.time() - self.start
-        displayHeader('Compute activity summary (%.2f seconds of wall clock time)' % elapsed)
+        displayHeader('Compute activity summary (%.2f seconds of wall clock time)' % elapsed, level=3)
         displayDict(self.counts)
         #for i in sorted(self.counts.items()):
         #    print '  %20s: %5d' % i
@@ -132,7 +132,7 @@ class ProfileMonitor(Monitor):
     def dumpRaw(self):
         for tFn, t, kw in self.result:
             key = self.kwToStr(kw)
-            print '%8.4f %8.4f: %s' % (tFn, t, key)
+            print('%8.4f %8.4f: %s' % (tFn, t, key))
 
     def key(self, sys, kw):
         if 'path' in kw:
@@ -146,7 +146,7 @@ class ProfileMonitor(Monitor):
         
     def displaySum(self, check=True):
         if check and self.stack:
-            print 'Monitor: Stuff still on stack:', self.stack
+            print('Monitor: Stuff still on stack:', self.stack)
             assert False
         if not self.result:
             displayMarkdown('No profile info was recorded.')
@@ -175,7 +175,7 @@ class ProfileMonitor(Monitor):
         txt = """
 ### Profile by nodes.
 * times are in microseconds
-* cumT is total time spent in funtion
+* cumT is total time spent in function
 * calcT is time spent in function, but not in a child node"""
         displayMarkdown(txt)
         displayListOfDicts(res, names=['fn', 'n', 'cumT', 'calcT', 'cumT/call', 'sys'])

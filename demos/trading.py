@@ -160,9 +160,9 @@ def makeWorld(small=False):
 
     pWorld.setChildren([pAll, bExt, bExt2])
 
-    print 'makeWorld, TopOfTheHouse is:', pAll
-    print '    # books:', len(pAll.books())
-    print '    # children:', len(pAll.children())
+    print('makeWorld, TopOfTheHouse is:', pAll)
+    print('    # books:', len(pAll.books()))
+    print('    # children:', len(pAll.children()))
     
     return pWorld
 

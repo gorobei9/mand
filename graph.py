@@ -1,9 +1,9 @@
 
-from context import Context
-from noval import _noVal
-from monitor import Monitor
-from node import Node, NodeKey
-from depmanager import DependencyManager, dm, getNode
+from .context import Context
+from .noval import _noVal
+from .monitor import Monitor
+from .node import Node, NodeKey
+from .depmanager import DependencyManager, dm, getNode
     
                  
 def _getCurrentNode():
@@ -30,7 +30,7 @@ def getValue(f, key):
         if v is not _noVal:
             Monitor.msg('GetValue', -1, 'from ctx', key=key, ctx=ctx, value=v)
             return v
-        name = f.func_name
+        name = f.__name__ # f.func_name PY3
         v = obj.meta.getField(name)
         if v is not _noVal:
             Monitor.msg('GetValue', -1, 'from stored', key=key, ctx=ctx, value=v)
@@ -63,12 +63,12 @@ def getKey(f, info, a, k):
     # XXX - this doesn't handle methods with kwargs correctly
     obj = a[0]
     args = a[1:]
-    name = f.func_name
+    name = f.__name__ # func_name
     key = NodeKey(obj, f, fName, args, tweakable)
     return key
 
 def makeFn(f, info={}):
-    name = f.func_name
+    name = f.__name__ # f.func_name PY3
     info = info.copy()
     info['name'] =  name
     # Note: info['key'] is added by DBOMetaClass
